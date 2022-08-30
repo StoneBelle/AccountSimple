@@ -42,3 +42,5 @@ def update_label(entry_input, label):
         label.config(foreground="red")
     else:
         label.config(foreground="black")
+
+

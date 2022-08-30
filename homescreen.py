@@ -38,6 +38,8 @@ class AppFrame(ttk.Frame):
         style.configure("TFrame", background=BG_COL)
         style.configure("TButton", background=BG_COL)
         style.configure("TLabel", background=BG_COL, font=FONT)
+        # print(style.lookup("TFrame", "background"))  # Checks for current style applied. Takes 2 parameters: name & widget
+        # print(style.theme_names())  # Shows the different styles available in the OS.
 
         # ttk Widgets
         self.menu = MenuBar(root)

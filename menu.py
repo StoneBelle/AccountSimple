@@ -1,12 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
+from turtle import update
+import time
 from modify_data import *
 
 
-def delete_login():
-    print("delete login")
-
+# TODO #2: Create Menu Bar for home screen
 
 def landscape_view():
     print("Landscape View")
@@ -20,89 +20,111 @@ def view_all():
     print("All Saved Logins")
 
 
-# TODO #2: Create Menu Bar for home screen
-
-def make_radiobutton(root, name):
-    var = StringVar
-    ttk.Radiobutton(root, text=name, value=name, variable=var)
+def delete_login():
+    """Displays all saved Accounts in a scrollable Toplevel. Allows users to select an account(s) to delete."""
+    top_wn = make_pop_up("Delete Login", "the login(s) you would like to delete")
 
 
-def make_pop_up():
-    # Creates a Toplevel with customizable title & size
-    print("Edit Login")
-    top = Toplevel(bg=BG_COL)
-    top.title("Update Login")
-    # top.geometry("450x375")
-    top.resizable(True, True)
-
-    # ttk Widget Styles
-
-    # print(style.lookup("TFrame", "background"))  # Checks for current style applied. Takes 2 parameters: name & widget
-    # print(style.theme_names())  # Shows the different styles available in the OS.
-
-    # Ensures Toplevel is responsive as window is resized
-    top.grid_columnconfigure(0, weight=1)
-    top.grid_rowconfigure(0, weight=1)
-    top.grid_columnconfigure(5, weight=1)
-    top.grid_rowconfigure(5, weight=1)
-
-    # Make Frames inside the Toplevel
-    outer_frame = ttk.Frame(top)
-    inner_frame = ttk.Frame(outer_frame)
-
-    # Toplevel Widgets
-    header = ttk.Label(outer_frame, text="Select the login you would like to update:")
-    left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton")
-    right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton")
-
-    # Create Canvas & Scrollbar, then attach Scrollbar to Canvas
-    canvas = tk.Canvas(inner_frame, bg=BG_COL)
-    scrollbar = ttk.Scrollbar(inner_frame, orient="vertical", command=canvas.yview)
-
-    # Configure Canvas
-    canvas.configure(yscrollcommand=scrollbar.set)
-    canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-
-    # Create Canvas frame???
-    canvas_frame = ttk.Frame(canvas)
-
-    # Grid System
-    outer_frame.grid(column=1, row=2)
-    inner_frame.grid(row=2)
-
-    header.grid(column=0, row=1, pady=15)
-    left_btn.grid(column=0, row=4, padx=(140, 0), pady=10)
-    right_btn.grid(column=0, row=4, padx=(305, 0))
-
-    canvas.grid()
-    canvas_frame.grid()
-    canvas.create_window((0, 0), window=canvas_frame, anchor=NW)
-    scrollbar.grid(row=0, column=2, sticky=NS)
-
-    return canvas_frame
-
-
-
-def update_login():
-    # TODO:  Retrieve all Account names from saved data and store in a list
-    # TODO:  Covert Account list into a sorted tuple
-    # TODO:  Create a radiobutton for each of the sorted Account names
-    # TODO:  Configure selected radiobutton to be bolded if selected
-    # TODO:  Store selected radiobutton in a variable
-
+def make_pop_up(title, text):
+    """Creates a customizable Toplevel if saved data is found. Returns the canvas frame to be used as the root for
+    customizable widgets."""
     try:
         data = read_data()
     except FileNotFoundError:
         messagebox.showerror(title="No Accounts Saved", message="There are currently no Account logins saved.")
     else:
-        root = make_pop_up()
-        acc_keys = sorted(tuple([key for key in data.keys()]))
-        style = ttk.Style()
-        style.configure("TFrame", background=BG_COL)
-        style.configure("TButton", background=BG_COL)
-        style.configure("DataTLabel", padx=50)
-        for acc in acc_keys:
-            ttk.Label(root, text=acc,style="Data.TLabel").grid(column=3)
+        # Retrieves Account names from saved data and stores it in a alphabetically sorted list called "accounts"
+        global accounts
+        accounts = sorted(tuple(data.keys()))
+        # Creates a Toplevel with customizable title & size
+        print("Edit Login")
+        global top
+        top = Toplevel(bg=BG_COL)
+        top.title(title)
+        top.resizable(True, True)
+        top.geometry("400x365")
+
+        # Ensures Toplevel is responsive as window is resized
+        top.grid_columnconfigure(0, weight=1)
+        top.grid_rowconfigure(0, weight=1)
+        top.grid_columnconfigure(5, weight=1)
+        top.grid_rowconfigure(5, weight=1)
+
+        # Toplevel Frames
+        global outer_frame
+        outer_frame = ttk.Frame(top)
+        inner_frame = ttk.Frame(outer_frame)
+
+        # Toplevel Widgets
+        global header
+        global right_btn
+        header = ttk.Label(outer_frame, text=f"Select {text}")
+        left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=lambda: top.destroy())
+        right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton", command=change_login)
+
+        # Canvas & Scrollbar
+        canvas = tk.Canvas(inner_frame, bg=BG_COL)
+
+        scrollbar = ttk.Scrollbar(inner_frame, orient="vertical", command=canvas.yview)
+
+        # Configure Canvas
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        # Create Canvas frame
+        global canvas_frame
+        canvas_frame = ttk.Frame(canvas)
+
+        # Toplevel Grid System
+        outer_frame.grid(column=1, row=2)
+        inner_frame.grid(row=2)
+        header.grid(column=0, row=1, pady=15)
+        left_btn.grid(column=0, row=4, padx=(140, 0), pady=10)
+        right_btn.grid(column=0, row=4, padx=(305, 0))
+
+        canvas.grid()
+        canvas_frame.grid()
+        canvas.create_window((0, 0), window=canvas_frame, anchor=NW)
+        scrollbar.grid(row=0, column=2, sticky=NS)
+
+
+def update_login():
+    """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
+    make_pop_up("Update Login", "the login you would like to update:")
+    radio_inputs = [(acc, acc) for acc in accounts]
+    global var
+    var = StringVar(value=0)
+    r_btn = 0
+    for option, val in radio_inputs:
+       tk.Radiobutton(canvas_frame, text=option, value=val, variable=var, bg=BG_COL, activebackground=BG_COL,
+                       font=("Arial", 8, "normal"), pady=6).grid(padx=(30, 0), sticky="w")
+    while True:
+        selected = var.get()
+        if selected == "0":
+            right_btn.config(state=DISABLED)
+        else:
+           right_btn.config(state=NORMAL)
+            
+        top.update()  # Refreshes screen
+        time.sleep(0.07)  # Time adds a delay based on number inputted (i.e. it suspends execution)
+
+
+
+
+
+def change_login():
+    selected = var.get()
+
+    if selected == "0":
+        outer_frame.after(1000, btn_state(right_btn))
+        print("jello")
+    else:
+        print(selected)
+        right_btn.configure(state=ACTIVE)
+        outer_frame.destroy()
+        all_widgets = outer_frame.winfo_children()
+        for widget in all_widgets:
+            widget.destroy()
 
 
 class MenuBar:
