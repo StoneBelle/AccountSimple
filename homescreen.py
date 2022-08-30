@@ -1,12 +1,8 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox, END
-import json
 import random
+from modify_data import *
+from menu import *
 
-# GUI CONSTANTS
-BG_COL = "#FFFFFF"
-FONT = "Arial", 8, "bold"
+
 
 # Password Components
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -16,8 +12,9 @@ symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 
 
 # TODO #1: Create Home Screen
-# Class that inherits tk.Tk to create a window object
 class AppWindow(tk.Tk):
+    """Class that inherits tk.Tk to create a window object."""
+
     def __init__(self, title):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
@@ -32,21 +29,10 @@ class AppWindow(tk.Tk):
         self.columnconfigure(0, weight=1)
 
 
-def change_text(entry_input, label):
-    if len(entry_input) == 0:
-        label.config(foreground="red")
-    else:
-        label.config(foreground="black")
-
-
-# Class that inherits ttk.Frame to create a Frame object inside a window
-# The window created from the AppWindow class will be passed in as the 'root' for this Frame
-
-
 class AppFrame(ttk.Frame):
+    """Class that inherits ttk.Frame to create a Frame object inside a window."""
     def __init__(self, root):
         super().__init__(root)
-
         # ttk Widget Styles
         style = ttk.Style()
         style.configure("TFrame", background=BG_COL)
@@ -54,6 +40,7 @@ class AppFrame(ttk.Frame):
         style.configure("TLabel", background=BG_COL, font=FONT)
 
         # ttk Widgets
+        self.menu = MenuBar(root)
         self.prompt_label = ttk.Label(self, text="Save or find your Account login below.")
         self.acc_label = ttk.Label(self, text="Account :  ")
         self.user_label = ttk.Label(self, text="Username :  ")
@@ -61,7 +48,7 @@ class AppFrame(ttk.Frame):
 
         self.acc_entry = ttk.Entry(self, width=36)
         self.user_entry = ttk.Entry(self, width=55)
-        self.pass_entry = ttk.Entry(self, width=36, show="*")
+        self.pass_entry = ttk.Entry(self, width=36)  # to hide password char use: show="*"
 
         self.find_button = ttk.Button(self, text="Find Login", width=17, command=self.find_login)
         self.pass_button = ttk.Button(self, text="Generate Password", width=17, command=self.make_password)
@@ -87,35 +74,32 @@ class AppFrame(ttk.Frame):
         self.grid()
 
     def find_login(self):
+        """Retrieves user input from account entry box and checks if an existing login was saved. User will be notified
+        via a messagebox on whether a login exists."""
         account = self.acc_entry.get()
-        # Retrieve user input from account entry box
-        try:  # Check for saved data
-            with open("data.json", "r") as data_file:
-                data = json.load(data_file)
+        try:  # Checking for saved data
+            data = read_data()
         except FileNotFoundError:  # If no existing data inform user
             messagebox.showerror(title="Account Error", message=f"There are currently no saved Accounts.")
-        else:  # If existing data retrieve login info using input from account
+        else:  # If existing data found, retrieve login info using input from account
             if account in data.keys():
                 saved_user = data[account]["username"]
                 saved_pass = data[account]["password"]
                 messagebox.showinfo(title="Account Login Retrieved", message=f'"{account}" Account Login Found:        '
-                                                                             f' \n\nUsername:  {saved_user}'
+                                                                             f'\n\nUsername:  {saved_user}'
                                                                              f'\nPassword:  {saved_pass}')
             else:
                 if len(account) == 0:
-                    messagebox.showerror(title="Missing Required Field",message="Enter the account name to continue.")
-                    change_text(account, self.acc_label)
-
+                    messagebox.showerror(title="Missing Required Field", message="Enter the account name to continue.")
+                    update_label(account, self.acc_label)
                 else:
-                    change_text(account, self.acc_label)
+                    update_label(account, self.acc_label)
                     messagebox.showerror(title="Account Error", message=f'No existing login for "{account}" was found.')
-
-    # Return login info to user in messagebox
 
     def save_login(self):
         account = self.acc_entry.get()
-        username = self.user_entry.get()
-        password = self.pass_entry.get()
+        username = self.user_entry.get().replace(" ", "")
+        password = self.pass_entry.get().replace(" ", "")
 
         login_data = {account: {
             "username": username,
@@ -124,37 +108,31 @@ class AppFrame(ttk.Frame):
 
         if len(account) == 0 or len(username) == 0 or len(password) == 0:
             messagebox.showerror(title="Missing Required Fields", message="You must fill in all fields to continue.")
-            change_text(username, self.user_label)
+            update_label(username, self.user_label)
 
         else:
             try:
-                with open("data.json", "r") as data_file:
-                    data = json.load(data_file)  # Reading old data
-            except FileNotFoundError:  # This will occur if file is not found (i.e. if try does not work)
-                with open("data.json", "w") as data_file:
-                    json.dump(login_data, data_file, indent=4)  # Write new data
-            else:  # This will occur if file is found (i.e. if try does work)
+                data = read_data()
+            except FileNotFoundError:
+                write_data(login_data)
+            else:
                 if account in data.keys():
-                    messagebox.askyesno(title="Account Login Found", message=f'A login for "{account}" already exists.'
-                                                                             f'\nWould you like to view it?')
+                    messagebox.showerror(title="Account Login Found", message=f'A login for "{account}" already exists')
                 else:
-                    with open("data.json", "w") as data_file:
-                        data.update(login_data)  # Updating old data with new data
-                        json.dump(data, data_file, indent=4)  # Saving updated data
+                    update_data(data, login_data)
                     messagebox.showinfo(title="Login Successfully Saved", message=f"Login for {account} was saved.")
-
             finally:
                 self.acc_entry.delete(0, END)
                 self.user_entry.delete(0, END)
                 self.pass_entry.delete(0, END)
 
-        change_text(account, self.acc_label)
-        change_text(username, self.user_label)
-        change_text(password, self.pass_label)
+        update_label(account, self.acc_label)
+        update_label(username, self.user_label)
+        update_label(password, self.pass_label)
 
     def make_password(self):
         self.pass_entry.delete(0, END)
-        self.pass_entry.config(show="")
+        # self.pass_entry.config(show="")
         pass_requirements = [random.choice(letters) for x in range(7)]
         pass_requirements += [random.choice(letters).upper() for x in range(2)]
         pass_requirements += [random.choice(numbers) for x in range(4)]
