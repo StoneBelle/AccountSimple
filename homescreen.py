@@ -19,6 +19,7 @@ class AppWindow(tk.Tk):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
         self.title(title)
+        self.geometry("700x500")
 
         # img = tk.PhotoImage(file="logo.png")
         # self_logo =tk.Label(self, image=img)
@@ -38,6 +39,8 @@ class AppFrame(ttk.Frame):
         style.configure("TFrame", background=BG_COL)
         style.configure("TButton", background=BG_COL)
         style.configure("TLabel", background=BG_COL, font=FONT)
+        # print(style.lookup("TFrame", "background"))  # Checks for current style applied. Takes 2 parameters: name & widget
+        # print(style.theme_names())  # Shows the different styles available in the OS.
 
         # ttk Widgets
         self.menu = MenuBar(root)
@@ -48,6 +51,7 @@ class AppFrame(ttk.Frame):
 
         self.acc_entry = ttk.Entry(self, width=36)
         self.user_entry = ttk.Entry(self, width=55)
+
         self.pass_entry = ttk.Entry(self, width=36)  # to hide password char use: show="*"
 
         self.find_button = ttk.Button(self, text="Find Login", width=17, command=self.find_login)
@@ -119,6 +123,7 @@ class AppFrame(ttk.Frame):
                 if account in data.keys():
                     messagebox.showerror(title="Account Login Found", message=f'A login for "{account}" already exists')
                 else:
+                    update_data(data, login_data)
                     messagebox.showinfo(title="Login Successfully Saved", message=f"Login for {account} was saved.")
             finally:
                 self.acc_entry.delete(0, END)
