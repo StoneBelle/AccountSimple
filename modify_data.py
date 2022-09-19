@@ -37,10 +37,17 @@ def check_exception(name, name2, new_data, data):
 
 
 def update_label(entry_input, label):
-    """Updates the label widget."""
+    """Updates the Label widget."""
     if len(entry_input) == 0:
         label.config(foreground="red")
     else:
         label.config(foreground="black")
 
+
+def update_button(entry_input, label):
+    """Updates the state of a Button widget."""
+    if len(entry_input) == 0:
+        label.config(foreground="red")
+    else:
+        label.config(foreground="black")
 
