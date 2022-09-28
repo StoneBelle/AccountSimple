@@ -1,6 +1,5 @@
 import json
 from tkinter import messagebox, END
-
 # GUI CONSTANTS
 BG_COL = "#FFFFFF"
 FONT = "Arial", 8, "bold"
@@ -37,10 +36,16 @@ def check_exception(name, name2, new_data, data):
 
 
 def update_label(entry_input, label):
-    """Updates the label widget."""
+    """Updates the Label widget."""
     if len(entry_input) == 0:
         label.config(foreground="red")
     else:
         label.config(foreground="black")
 
-
+def update_state():
+    try:
+        read_data()
+    except FileNotFoundError:
+        print("keep state as is")
+    else:
+        pass
