@@ -42,6 +42,8 @@ def update_label(entry_input, label):
     else:
         label.config(foreground="black")
 
+
+
 def update_state():
     try:
         read_data()

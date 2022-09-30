@@ -1,4 +1,4 @@
-from homescreen import AppWindow, AppFrame
+from homescreen import *
 from menu import *
 from tkinter import *
 from modify_data import *
@@ -11,6 +11,7 @@ DISABLE_STATE = ("Update Login", "Delete Login", "View All")
 # Root Window & Main Frame
 app = AppWindow("Account Simple  4.0")
 frame = AppFrame(app)
+MenuBar(app, frame.update_login)
 
 # TODO #1: Create a Menu bar for Root Window
 # menu_bar = Menu(app)

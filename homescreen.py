@@ -15,9 +15,9 @@ MENU_ITEMS = ("Update Login", "Delete Login", "Portrait View", "Landscape View",
 DISABLE_STATE = ("Update Login", "Delete Login", "View All")
 
 
-# TODO #1: Create Home Screen
 class AppWindow(tk.Tk):
     """Class that inherits tk.Tk to create a window object."""
+
     def __init__(self, title):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
@@ -40,14 +40,10 @@ class AppFrame(ttk.Frame):
         style.configure("TLabel", background=BG_COL, font=FONT)
         # print(style.lookup("TFrame", "background"))  # Checks current style applied. Takes 2 parameters: name & widget
         # print(style.theme_names())  # Shows different styles available in the OS.
-        global menu
-        menu = MenuBar(root, self)
-
         self.make_widgets(self)
         self.grid()
 
     def make_widgets(self, wn):
-
         # ttk Widgets
         global acc_entry
         global user_entry
@@ -63,7 +59,6 @@ class AppFrame(ttk.Frame):
 
         acc_entry = ttk.Entry(wn, width=36)
         user_entry = ttk.Entry(wn, width=55)
-
         pass_entry = ttk.Entry(wn, width=36)  # to hide password char use: show="*"
 
         find_button = ttk.Button(wn, text="Find Login", width=17, command=self.find_login)
@@ -89,8 +84,8 @@ class AppFrame(ttk.Frame):
         add_button.grid(column=3, columnspan=2, row=4, pady=(20, 0), ipadx=9)
 
     def find_login(self):
-        """Retrieves user input from account entry box and checks if an existing login was saved. User will be notified
-        via a messagebox on whether a login exists."""
+        """Retrieves user input from the account entry box and checks for a login saved under that name. User will be
+        notified via a messagebox on whether a login exists."""
         account = acc_entry.get()
         try:  # Checking for saved data
             data = read_data()
@@ -145,9 +140,8 @@ class AppFrame(ttk.Frame):
         update_label(username, user_label)
         update_label(password, pass_label)
 
-        # menu.update_state()
-
     def make_password(self):
+        """Generates a password composed of 15 randomized characters."""
         pass_entry.delete(0, END)
         pass_requirements = [random.choice(letters) for x in range(7)]
         pass_requirements += [random.choice(letters).upper() for x in range(2)]
@@ -159,13 +153,14 @@ class AppFrame(ttk.Frame):
         print(pass_requirements)
 
     def make_pop_up(self, title, text):
-        """Creates a customizable Toplevel if saved data is found. Returns the canvas frame to be used as the root for
-        customizable widgets."""
+        """Creates a customizable Toplevel if there is existing data is found. Returns the canvas frame to be used as
+        the root for new widgets."""
         try:
             data = read_data()
         except FileNotFoundError:
             messagebox.showerror(title="No Accounts Saved", message="There are currently no Account logins saved.")
         else:
+
             # Retrieves Account names from saved data and stores it in an alphabetically sorted list called "accounts"
             global accounts
             accounts = sorted(tuple(data.keys()))
@@ -222,30 +217,25 @@ class AppFrame(ttk.Frame):
 
     def update_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
-        try:  # Checking for saved data
-            data = read_data()
-        except FileNotFoundError:  # If no existing data inform user
-            messagebox.showerror(title="Account Error", message=f"There are currently no saved Accounts.")
-        else:  # If existing data found, retrieve login info using input from account
-            self.make_pop_up("Update Login", "the login you would like to update:")
-            radio_inputs = [(acc, acc) for acc in accounts]
+        self.make_pop_up("Update Login", "the login you would like to update:")
+        radio_inputs = [(acc, acc) for acc in accounts]
 
-            global var
-            var = StringVar(value=0)
-            for option, val in radio_inputs:
-                tk.Radiobutton(canvas_frame, text=option, value=val, variable=var, bg=BG_COL, activebackground=BG_COL,
-                               font=("Arial", 8, "normal"), pady=6).grid(padx=(30, 0), sticky="w")
+        global var
+        var = StringVar(value=0)
+        for option, val in radio_inputs:
+            tk.Radiobutton(canvas_frame, text=option, value=val, variable=var, bg=BG_COL, activebackground=BG_COL,
+                           font=("Arial", 8, "normal"), pady=6).grid(padx=(30, 0), sticky="w")
 
-            right_btn.config(state=DISABLED)
+        right_btn.config(state=DISABLED)
 
-            while True:
-                top.update()  # Refreshes screen
-                time.sleep(0.07)  # Time adds a delay based on number inputted (i.e. it suspends execution)
-                global selected
-                selected = var.get()
-                if selected in accounts:
-                    right_btn.config(state=NORMAL, command=self.clicked_next)
-                    break
+        while True:
+            top.update()  # Refreshes screen
+            time.sleep(0.07)  # Time adds a delay based on number inputted (i.e. it suspends execution)
+            global selected
+            selected = var.get()
+            if selected in accounts:
+                right_btn.config(state=NORMAL, command=self.clicked_next)
+                break
 
     def clicked_next(self):
         # After user selects an account to edit, Toplevel will refresh to prompt user to make their desired changes.
@@ -266,10 +256,6 @@ class AppFrame(ttk.Frame):
         user_entry.grid()
         pass_entry.grid()
 
-
-
-
-
     # TODO #2: Create Menu Bar for home screen
     def view_all(self):
         print("All Saved Logins")
@@ -283,40 +269,51 @@ class AppFrame(ttk.Frame):
 class MenuBar:
     def __init__(self, root, frame):
         self.menu_bar = Menu(root)
-        self.make_menu("Edit", 0, 2, False, frame.update_login)
-        self.make_menu("View", 2, 5, True, frame.update_login)
-        self.make_menu("Help", 5, 8, False, frame.update_login)
+        self.make_menu(frame)
+        root.config(menu=self.menu_bar)
+
+        # self.make_menu("Edit", 0, 2, False, frame.update_login)
+        # self.make_menu("View", 2, 5, True, frame.update_login)
+        # self.make_menu("Help", 5, 8, False, frame.update_login)
 
         root.config(menu=self.menu_bar)
 
-    def make_menu(self, menu_tab, start, end, tf, cmd):
-        tab = Menu(self.menu_bar, tearoff=False)
-        count = 0
+    def make_menu(self, menu_cmd):
+        # tab = Menu(self.menu_bar, tearoff=False)
+        # count = 0
 
         try:
             read_data()
         except FileNotFoundError:
-            for item in MENU_ITEMS[slice(start, end)]:
-                count += 1
-                if tf and count == 2:
-                    tab.add_separator()
-                if item in DISABLE_STATE:
-                    tab.add_command(label=item, command=cmd, state=DISABLED)
-                else:
-                    tab.add_command(label=item, command=cmd)
+            edit_menu = Menu(self.menu_bar, tearoff="off")
+            edit_menu.add_command(label="Update Login", command=menu_cmd, state="disabled")
+            edit_menu.add_separator()
+            edit_menu.add_command(label="Delete Login", command=menu_cmd, state="disabled")
+            self.menu_bar.add_cascade(label="Edit", menu=edit_menu)
+            # for item in MENU_ITEMS[slice(start, end)]:
+            #     count += 1
+            #     if tf and count == 2:
+            #         tab.add_separator()
+            #     if item in DISABLE_STATE:
+            #         tab.add_command(label=item, command=cmd, state=DISABLED)
+            #     else:
+            #         tab.add_command(label=item, command=cmd)
         else:
-            for item in MENU_ITEMS[slice(start, end)]:
-                count += 1
-                if tf and count == 2:
-                    tab.add_separator()
-                tab.add_command(label=item, command=cmd)
-        finally:
-            self.menu_bar.add_cascade(label=menu_tab, menu=tab)
+            edit_menu = Menu(self.menu_bar, tearoff="off")
+            edit_menu.add_command(label="Update Login", command=menu_cmd)
+            edit_menu.add_separator()
+            edit_menu.add_command(label="Delete Login", command=menu_cmd)
+            self.menu_bar.add_cascade(label="Edit", menu=edit_menu)
+            # for item in MENU_ITEMS[slice(start, end)]:
+            #     count += 1
+            #     if tf and count == 2:
+            #         tab.add_separator()
+            #     tab.add_command(label=item, command=cmd)
+        # finally:
+        # self.menu_bar.add_cascade(label=menu_tab, menu=tab)
 
-    def update_state(self):
-        self.entryconfig("Update Login", state="normal")
-        self.entryconfig("Delete Login", state="normal")
-
-        self.entryconfig("View All", state="normal")
-
-
+    # def update_state(self):
+    #     self.entryconfig("Update Login", state="normal")
+    #     self.entryconfig("Delete Login", state="normal")
+    #
+    #     self.entryconfig("View All", state="normal")
