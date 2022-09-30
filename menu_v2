@@ -1,0 +1,29 @@
+
+
+MENU_ITEMS = ("Update Login", "Delete Login", "Portrait View", "Landscape View", "View All", "Tutorial", "FAQ")
+DISABLE_STATE = ("Update Login", "Delete Login", "View All")
+
+
+def make_menu(self, menu_tab, start, end, tf, cmd):
+        tab = Menu(self.menu_bar, tearoff=False)
+        count = 0
+
+        try:
+            read_data()
+        except FileNotFoundError:
+            for item in MENU_ITEMS[slice(start, end)]:
+                count += 1
+                if tf and count == 2:
+                    tab.add_separator()
+                if item in DISABLE_STATE:
+                    tab.add_command(label=item, command=cmd, state=DISABLED)
+                else:
+                    tab.add_command(label=item, command=cmd)
+        else:
+            for item in MENU_ITEMS[slice(start, end)]:
+                count += 1
+                if tf and count == 2:
+                    tab.add_separator()
+            tab.add_command(label=item, command=cmd)
+        finally:
+            self.menu_bar.add_cascade(label=menu_tab, menu=tab)
