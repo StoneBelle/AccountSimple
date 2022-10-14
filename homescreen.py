@@ -3,7 +3,6 @@ from modify_data import *
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
-import time
 
 # Password Components
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -22,7 +21,7 @@ class AppWindow(tk.Tk):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
         self.title(title)
-        # self.geometry("700x500")
+        self.geometry("700x500")
 
         # Window Responsiveness
         self.rowconfigure(0, weight=1)
@@ -170,7 +169,7 @@ class AppFrame(ttk.Frame):
             top = tk.Toplevel(bg=BG_COL)
             top.title(title)
             top.resizable(True, True)
-            top.geometry("400x365")
+            top.geometry("700x365")
 
             # Ensures Toplevel is responsive as window is resized
             top.grid_columnconfigure(0, weight=1)
@@ -180,18 +179,21 @@ class AppFrame(ttk.Frame):
 
             # Toplevel Frames
             global outer_frame
+            global inner_frame
             outer_frame = ttk.Frame(top)
             inner_frame = ttk.Frame(outer_frame)
 
             # Toplevel Widgets
             global header
+            global left_btn
             global right_btn
+
             header = ttk.Label(outer_frame, text=f"Select {text}")
-            left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=lambda: top.destroy())
+            left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=top.destroy)
             right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton")
 
             # Canvas & Scrollbar
-            canvas = tk.Canvas(inner_frame, bg=BG_COL)
+            canvas = tk.Canvas(inner_frame, bg="#a2f2d5", width=500)
             global scrollbar
             scrollbar = ttk.Scrollbar(inner_frame, orient="vertical", command=canvas.yview)
 
@@ -207,8 +209,8 @@ class AppFrame(ttk.Frame):
             outer_frame.grid(column=1, row=2)
             inner_frame.grid(row=2)
             header.grid(column=0, row=1, pady=15)
-            left_btn.grid(column=0, row=4, padx=(140, 0), pady=10)
-            right_btn.grid(column=0, row=4, padx=(305, 0))
+            left_btn.grid(column=0, row=6, padx=(140, 0), pady=10)
+            right_btn.grid(column=0, row=6, padx=(305, 0))
 
             canvas.grid()
             canvas_frame.grid()
@@ -230,31 +232,57 @@ class AppFrame(ttk.Frame):
 
         while True:
             top.update()  # Refreshes screen
-            time.sleep(0.07)  # Time adds a delay based on number inputted (i.e. it suspends execution)
             global selected
             selected = var.get()
             if selected in accounts:
                 right_btn.config(state=NORMAL, command=self.clicked_next)
                 break
 
+
+
     def clicked_next(self):
         # After user selects an account to edit, Toplevel will refresh to prompt user to make their desired changes.
         scrollbar.destroy()
-        for widget in outer_frame.winfo_children():
+        for widget in inner_frame.winfo_children():
             widget.destroy()
 
-        # self.make_widgets(outer_frame)
-        ttk.Label(outer_frame, text=f"{selected} Login Info", font=("Arial", 10, "bold")).grid()
-        ttk.Label(outer_frame, text=f"{selected} Login Info", font=("Arial", 10, "bold")).grid(column=1, row=1)
-        ttk.Label(outer_frame, text=selected).grid(column=1, row=2)
+        #self.make_widgets(outer_frame)
+        data = read_data()
 
-        user_entry = ttk.Entry(outer_frame)
-        user_entry.insert(0, "Hello")
-        pass_entry = ttk.Entry(outer_frame)
-        pass_entry.insert(0, "Bye")
+        if selected in data.keys():
+            saved_user = data[selected]["username"]
+            saved_pass = data[selected]["password"]
+        header.config(text=f"{selected} Login Information")
 
-        user_entry.grid()
-        pass_entry.grid()
+        header.grid(column=0, row=0, pady=(0, 50))
+        left_btn.config(text="Back")
+        right_btn.config(text="Update")
+        left_btn.grid(column=0, row=1, pady=(10, 0))
+        right_btn.grid(column=0, row=1, pady=(10, 0))
+
+        user_entry = ttk.Entry(outer_frame, width=40)
+        pass_entry = ttk.Entry(outer_frame, width=40)
+
+        user_label = ttk.Label(outer_frame, text="USERNAME")
+        pass_label = ttk.Label(outer_frame, text="PASSWORD")
+
+        user_entry.insert(0, f"{saved_user}")
+        pass_entry.insert(0,f"{saved_pass}")
+
+        user_label.grid(column=0, row=0, padx=(0,50), pady=(20, 0))
+        pass_label.grid(column=0, row=0, pady=(170, 0))
+
+        user_entry.grid(column=0, row=0, pady=(70, 0), ipady=
+        2)
+        pass_entry.grid(column=0, row=0, pady=(220, 0), ipady=2)
+        # TODO: Find login data for selected account
+        # TODO: Display login data within en
+        #
+        #
+        #  try boxes
+        # TODO: Add appropriate widgets to screen
+        # TODO: Change "cancel" button to "back" button & call previous screen
+
 
     # TODO #2: Create Menu Bar for home screen
     def view_all(self):
@@ -272,48 +300,35 @@ class MenuBar:
         self.make_menu(frame)
         root.config(menu=self.menu_bar)
 
-        # self.make_menu("Edit", 0, 2, False, frame.update_login)
-        # self.make_menu("View", 2, 5, True, frame.update_login)
-        # self.make_menu("Help", 5, 8, False, frame.update_login)
+    def edit_menu(self, menu_cmd, sel_state):
+        edit_menu = Menu(self.menu_bar, tearoff="off")
+        edit_menu.add_command(label="Update Login", command=menu_cmd, state=sel_state)
+        edit_menu.add_command(label="Delete Login", command=menu_cmd, state=sel_state)
+        self.menu_bar.add_cascade(label="Edit", menu=edit_menu)
 
-        root.config(menu=self.menu_bar)
+    def view_menu(self, menu_cmd, sel_state):
+        view_menu = Menu(self.menu_bar, tearoff="off")
+        view_menu.add_command(label="Landscape", command=menu_cmd, state=sel_state)
+        view_menu.add_command(label="Portrait", command=menu_cmd, state=sel_state)
+        view_menu.add_separator()
+        view_menu.add_command(label="View All", command=menu_cmd, state=sel_state)
+        self.menu_bar.add_cascade(label="View", menu=view_menu)
 
-    def make_menu(self, menu_cmd):
-        # tab = Menu(self.menu_bar, tearoff=False)
-        # count = 0
+    def help_menu(self, menu_cmd, sel_state):
+        edit_menu = Menu(self.menu_bar, tearoff="off")
+        # edit_menu.add_command(label="Tutorial", command=menu_cmd, state=sel_state)
+        edit_menu.add_command(label="FAQ", command=menu_cmd, state=sel_state)
+        self.menu_bar.add_cascade(label="Help", menu=edit_menu)
 
+    def make_menu(self, cmd):
         try:
             read_data()
         except FileNotFoundError:
-            edit_menu = Menu(self.menu_bar, tearoff="off")
-            edit_menu.add_command(label="Update Login", command=menu_cmd, state="disabled")
-            edit_menu.add_separator()
-            edit_menu.add_command(label="Delete Login", command=menu_cmd, state="disabled")
-            self.menu_bar.add_cascade(label="Edit", menu=edit_menu)
-            # for item in MENU_ITEMS[slice(start, end)]:
-            #     count += 1
-            #     if tf and count == 2:
-            #         tab.add_separator()
-            #     if item in DISABLE_STATE:
-            #         tab.add_command(label=item, command=cmd, state=DISABLED)
-            #     else:
-            #         tab.add_command(label=item, command=cmd)
+            self.edit_menu(cmd, "disabled")
+            self.view_menu(cmd, "disabled")
+            self.help_menu(cmd, "disabled")
         else:
-            edit_menu = Menu(self.menu_bar, tearoff="off")
-            edit_menu.add_command(label="Update Login", command=menu_cmd)
-            edit_menu.add_separator()
-            edit_menu.add_command(label="Delete Login", command=menu_cmd)
-            self.menu_bar.add_cascade(label="Edit", menu=edit_menu)
-            # for item in MENU_ITEMS[slice(start, end)]:
-            #     count += 1
-            #     if tf and count == 2:
-            #         tab.add_separator()
-            #     tab.add_command(label=item, command=cmd)
-        # finally:
-        # self.menu_bar.add_cascade(label=menu_tab, menu=tab)
+            self.edit_menu(cmd, "normal")
+            self.view_menu(cmd, "normal")
+            self.help_menu(cmd, "normal")
 
-    # def update_state(self):
-    #     self.entryconfig("Update Login", state="normal")
-    #     self.entryconfig("Delete Login", state="normal")
-    #
-    #     self.entryconfig("View All", state="normal")

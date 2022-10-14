@@ -5,7 +5,8 @@ BG_COL = "#FFFFFF"
 FONT = "Arial", 8, "bold"
 
 
-# TODO #3: Create JSON  functions to read, write, and update data
+# TODO #3: Create JS
+#  ON  functions to read, write, and update data
 
 def read_data():
     with open("data.json", "r") as data_file:
@@ -44,6 +45,7 @@ def update_label(entry_input, label):
 
 
 
+
 def update_state():
     try:
         read_data()
@@ -51,3 +53,6 @@ def update_state():
         print("keep state as is")
     else:
         pass
+
+
+
