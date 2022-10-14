@@ -1,12 +1,13 @@
 import json
 from tkinter import messagebox, END
-
 # GUI CONSTANTS
 BG_COL = "#FFFFFF"
-FONT = "Arial", 8, "bold"
+text_font = "Arial", 8, "normal"
+header_font = "Arial", 11, "bold"
 
 
-# TODO #3: Create JSON  functions to read, write, and update data
+# TODO #3: Create JS
+#  ON  functions to read, write, and update data
 
 def read_data():
     with open("data.json", "r") as data_file:
@@ -44,10 +45,15 @@ def update_label(entry_input, label):
         label.config(foreground="black")
 
 
-def update_button(entry_input, label):
-    """Updates the state of a Button widget."""
-    if len(entry_input) == 0:
-        label.config(foreground="red")
+
+
+def update_state():
+    try:
+        read_data()
+    except FileNotFoundError:
+        print("keep state as is")
     else:
-        label.config(foreground="black")
+        pass
+
+
 

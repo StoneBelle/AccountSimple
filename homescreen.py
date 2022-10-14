@@ -3,9 +3,6 @@ from modify_data import *
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
-import time
-
-from menu import *
 
 # Password Components
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -13,8 +10,10 @@ letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 
+MENU_ITEMS = ("Update Login", "Delete Login", "Portrait View", "Landscape View", "View All", "Tutorial", "FAQ")
+DISABLE_STATE = ("Update Login", "Delete Login", "View All")
 
-# TODO #1: Create Home Screen
+
 class AppWindow(tk.Tk):
     """Class that inherits tk.Tk to create a window object."""
 
@@ -22,11 +21,7 @@ class AppWindow(tk.Tk):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
         self.title(title)
-        # self.geometry("700x500")
-
-        # img = tk.PhotoImage(file="logo.png")
-        # self_logo =tk.Label(self, image=img)
-        # self_logo.grid(column=0, row=1)
+        self.geometry("850x500")
 
         # Window Responsiveness
         self.rowconfigure(0, weight=1)
@@ -41,9 +36,9 @@ class AppFrame(ttk.Frame):
         style = ttk.Style()
         style.configure("TFrame", background=BG_COL)
         style.configure("TButton", background=BG_COL)
-        style.configure("TLabel", background=BG_COL, font=FONT)
-        # print(style.lookup("TFrame", "background"))  # Checks for current style applied. Takes 2 parameters: name & widget
-        # print(style.theme_names())  # Shows the different styles available in the OS.
+        style.configure("TLabel", background=BG_COL, foreground="grey", font=text_font)
+        # print(style.lookup("TFrame", "background"))  # Checks current style applied. Takes 2 parameters: name & widget
+        # print(style.theme_names())  # Shows different styles available in the OS.
         self.make_widgets(self)
         self.grid()
 
@@ -56,41 +51,36 @@ class AppFrame(ttk.Frame):
         global user_label
         global pass_label
 
-        prompt_label = ttk.Label(wn, text="Save or find your Account login below.")
-        acc_label = ttk.Label(wn, text="  Account :  ")
-        user_label = ttk.Label(wn, text="Username :  ")
-        pass_label = ttk.Label(wn, text="Password :  ")
+        prompt_label = ttk.Label(wn, text="Save or find your Account login using the fields below.")
+        acc_label = ttk.Label(wn, text="ACCOUNT")
+        user_label = ttk.Label(wn, text="USERNAME")
+        pass_label = ttk.Label(wn, text="PASSWORD")
 
         acc_entry = ttk.Entry(wn, width=36)
-        user_entry = ttk.Entry(wn, width=55)
-
+        user_entry = ttk.Entry(wn, width=56)
         pass_entry = ttk.Entry(wn, width=36)  # to hide password char use: show="*"
 
         find_button = ttk.Button(wn, text="Find Login", width=17, command=self.find_login)
         pass_button = ttk.Button(wn, text="Generate Password", width=17, command=self.make_password)
-        add_button = ttk.Button(wn, text="Save Login", width=53, command=self.save_login)
+        add_button = ttk.Button(wn, text="Save Account Login", width=53, command=self.save_login)
 
-        #Widget grid
-        prompt_label.grid(column=3, columnspan=2, row=1, rowspan=2, pady=(0, 20))
-        acc_label.grid(column=2, row=2, padx=(8, 0), pady=(50, 0))
-        user_label.grid(column=2, row=3)
-        pass_label.grid(column=2, row=4, padx=(3, 0), pady=(0, 50))
+        # Widget grid
+        prompt_label.grid(column=3, columnspan=2, row=1, pady=(15, 40))
+        acc_label.grid(column=3, row=2, padx=(0, 165), pady=5)
+        user_label.grid(column=3, row=4,  padx=(0, 160), pady=(30, 7))
+        pass_label.grid(column=3, row=6, padx=(0, 160), pady=(30, 7))
 
-        acc_entry.grid(column=3, row=2, pady=(50, 6), ipady=2)
-        user_entry.grid(column=3, columnspan=2, row=3, ipady=2)
-        pass_entry.grid(column=3, row=4, pady=(6, 50), ipady=2)
+        acc_entry.grid(column=3, row=3, ipady=3)
+        user_entry.grid(column=3, columnspan=2, row=5, ipady=3, padx=(0, 7))
+        pass_entry.grid(column=3, row=7, ipady=3)
 
-        acc_entry.grid(column=3, row=2, ipady=3)
-        user_entry.grid(column=3, columnspan=2, row=3, ipady=3, ipadx=4)
-        pass_entry.grid(column=3, row=4, ipady=3)
-
-        find_button.grid(column=4, row=2, padx=(5, 0), pady=(50, 7))
-        pass_button.grid(column=4, row=4, padx=(5, 0), pady=(5, 50))
-        add_button.grid(column=3, columnspan=2, row=4, pady=(20, 0), ipadx=9)
+        find_button.grid(column=4, row=3, ipady=2, padx=8)
+        pass_button.grid(column=4, row=7, ipady=2, padx=8)
+        add_button.grid(column=3, columnspan=2, row=8, pady=43, ipadx=9, ipady=2, padx=(0, 7))
 
     def find_login(self):
-        """Retrieves user input from account entry box and checks if an existing login was saved. User will be notified
-        via a messagebox on whether a login exists."""
+        """Retrieves user input from the account entry box and checks for a login saved under that name. User will be
+        notified via a messagebox on whether a login exists."""
         account = acc_entry.get()
         try:  # Checking for saved data
             data = read_data()
@@ -146,8 +136,8 @@ class AppFrame(ttk.Frame):
         update_label(password, pass_label)
 
     def make_password(self):
+        """Generates a password composed of 15 randomized characters."""
         pass_entry.delete(0, END)
-        # self.pass_entry.config(show="")
         pass_requirements = [random.choice(letters) for x in range(7)]
         pass_requirements += [random.choice(letters).upper() for x in range(2)]
         pass_requirements += [random.choice(numbers) for x in range(4)]
@@ -157,15 +147,15 @@ class AppFrame(ttk.Frame):
         pass_entry.insert(0, generated_pass)
         print(pass_requirements)
 
-
     def make_pop_up(self, title, text):
-        """Creates a customizable Toplevel if saved data is found. Returns the canvas frame to be used as the root for
-        customizable widgets."""
+        """Creates a customizable Toplevel if there is existing data is found. Returns the canvas frame to be used as
+        the root for new widgets."""
         try:
             data = read_data()
         except FileNotFoundError:
             messagebox.showerror(title="No Accounts Saved", message="There are currently no Account logins saved.")
         else:
+
             # Retrieves Account names from saved data and stores it in an alphabetically sorted list called "accounts"
             global accounts
             accounts = sorted(tuple(data.keys()))
@@ -175,7 +165,7 @@ class AppFrame(ttk.Frame):
             top = tk.Toplevel(bg=BG_COL)
             top.title(title)
             top.resizable(True, True)
-            top.geometry("400x365")
+            top.geometry("700x365")
 
             # Ensures Toplevel is responsive as window is resized
             top.grid_columnconfigure(0, weight=1)
@@ -185,18 +175,21 @@ class AppFrame(ttk.Frame):
 
             # Toplevel Frames
             global outer_frame
+            global inner_frame
             outer_frame = ttk.Frame(top)
             inner_frame = ttk.Frame(outer_frame)
 
             # Toplevel Widgets
             global header
+            global left_btn
             global right_btn
+
             header = ttk.Label(outer_frame, text=f"Select {text}")
-            left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=lambda: top.destroy())
+            left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=top.destroy)
             right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton")
 
             # Canvas & Scrollbar
-            canvas = tk.Canvas(inner_frame, bg=BG_COL)
+            canvas = tk.Canvas(inner_frame, bg="#a2f2d5", width=500)
             global scrollbar
             scrollbar = ttk.Scrollbar(inner_frame, orient="vertical", command=canvas.yview)
 
@@ -212,67 +205,126 @@ class AppFrame(ttk.Frame):
             outer_frame.grid(column=1, row=2)
             inner_frame.grid(row=2)
             header.grid(column=0, row=1, pady=15)
-            left_btn.grid(column=0, row=4, padx=(140, 0), pady=10)
-            right_btn.grid(column=0, row=4, padx=(305, 0))
+            left_btn.grid(column=0, row=6, padx=(140, 0), pady=10)
+            right_btn.grid(column=0, row=6, padx=(305, 0))
 
             canvas.grid()
             canvas_frame.grid()
             canvas.create_window((0, 0), window=canvas_frame, anchor=NW)
             scrollbar.grid(row=0, column=2, sticky=NS)
 
-
     def update_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
-        try:  # Checking for saved data
-            data = read_data()
-        except FileNotFoundError:  # If no existing data inform user
-            messagebox.showerror(title="Account Error", message=f"There are currently no saved Accounts.")
-        else:  # If existing data found, retrieve login info using input from account
-            self.make_pop_up("Update Login", "the login you would like to update:")
-            radio_inputs = [(acc, acc) for acc in accounts]
+        self.make_pop_up("Update Login", "the login you would like to update:")
+        radio_inputs = [(acc, acc) for acc in accounts]
 
-            global var
-            var = StringVar(value=0)
-            for option, val in radio_inputs:
-                tk.Radiobutton(canvas_frame, text=option, value=val, variable=var, bg=BG_COL, activebackground=BG_COL,
-                               font=("Arial", 8, "normal"), pady=6).grid(padx=(30, 0), sticky="w")
+        global var
+        var = StringVar(value=0)
+        for option, val in radio_inputs:
+            tk.Radiobutton(canvas_frame, text=option, value=val, variable=var, bg=BG_COL, activebackground=BG_COL,
+                           font=("Arial", 8, "normal"), pady=6).grid(padx=(30, 0), sticky="w")
 
-            right_btn.config(state=DISABLED)
+        right_btn.config(state=DISABLED)
 
-            while True:
-                top.update()  # Refreshes screen
-                time.sleep(0.07)  # Time adds a delay based on number inputted (i.e. it suspends execution)
-                global selected
-                selected = var.get()
-                if selected in accounts:
-                    right_btn.config(state=NORMAL, command=self.clicked_next)
-                    break
+        while True:
+            top.update()  # Refreshes screen
+            global selected
+            selected = var.get()
+            if selected in accounts:
+                right_btn.config(state=NORMAL, command=self.clicked_next)
+                break
+
+
 
     def clicked_next(self):
         # After user selects an account to edit, Toplevel will refresh to prompt user to make their desired changes.
         scrollbar.destroy()
-        for widget in outer_frame.winfo_children():
+        for widget in inner_frame.winfo_children():
             widget.destroy()
 
-       #self.make_widgets(outer_frame)
-        ttk.Label(outer_frame, text=f"{selected} Login Info", font=("Arial", 10, "bold")).grid()
-        ttk.Label(outer_frame, text=f"{selected} Login Info", font=("Arial", 10, "bold")).grid(column=1, row=1)
-        ttk.Label(outer_frame, text=selected).grid(column=1, row=2)
+        #self.make_widgets(outer_frame)
+        data = read_data()
 
-        user_entry = ttk.Entry(outer_frame)
-        user_entry.insert(0, "Hello")
-        pass_entry = ttk.Entry(outer_frame)
-        pass_entry.insert(0, "Bye")
+        if selected in data.keys():
+            saved_user = data[selected]["username"]
+            saved_pass = data[selected]["password"]
+        header.config(text=f"{selected} Login Information")
 
-        user_entry.grid()
-        pass_entry.grid()
+        header.grid(column=0, row=0, pady=(0, 50))
+        left_btn.config(text="Back")
+        right_btn.config(text="Update")
+        left_btn.grid(column=0, row=1, pady=(10, 0))
+        right_btn.grid(column=0, row=1, pady=(10, 0))
+
+        user_entry = ttk.Entry(outer_frame, width=40)
+        pass_entry = ttk.Entry(outer_frame, width=40)
+
+        user_label = ttk.Label(outer_frame, text="USERNAME")
+        pass_label = ttk.Label(outer_frame, text="PASSWORD")
+
+        user_entry.insert(0, f"{saved_user}")
+        pass_entry.insert(0,f"{saved_pass}")
+
+        user_label.grid(column=0, row=0, padx=(0,50), pady=(20, 0))
+        pass_label.grid(column=0, row=0, pady=(170, 0))
+
+        user_entry.grid(column=0, row=0, pady=(70, 0), ipady=
+        2)
+        pass_entry.grid(column=0, row=0, pady=(220, 0), ipady=2)
+        # TODO: Find login data for selected account
+        # TODO: Display login data within en
+        #
+        #
+        #  try boxes
+        # TODO: Add appropriate widgets to screen
+        # TODO: Change "cancel" button to "back" button & call previous screen
+
+
     # TODO #2: Create Menu Bar for home screen
     def view_all(self):
         print("All Saved Logins")
-
 
     def delete_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select an account(s) to delete."""
         # top_wn = make_pop_up("Delete Login", "the login(s) you would like to delete")
         pass
+
+
+class MenuBar:
+    def __init__(self, root, frame):
+        self.menu_bar = Menu(root)
+        self.make_menu(frame)
+        root.config(menu=self.menu_bar)
+
+    def edit_menu(self, menu_cmd, sel_state):
+        edit_menu = Menu(self.menu_bar, tearoff="off")
+        edit_menu.add_command(label="Update Login", command=menu_cmd, state=sel_state)
+        edit_menu.add_command(label="Delete Login", command=menu_cmd, state=sel_state)
+        self.menu_bar.add_cascade(label="Edit", menu=edit_menu)
+
+    def view_menu(self, menu_cmd, sel_state):
+        view_menu = Menu(self.menu_bar, tearoff="off")
+        view_menu.add_command(label="Landscape", command=menu_cmd, state=sel_state)
+        view_menu.add_command(label="Portrait", command=menu_cmd, state=sel_state)
+        view_menu.add_separator()
+        view_menu.add_command(label="View All", command=menu_cmd, state=sel_state)
+        self.menu_bar.add_cascade(label="View", menu=view_menu)
+
+    def help_menu(self, menu_cmd, sel_state):
+        edit_menu = Menu(self.menu_bar, tearoff="off")
+        # edit_menu.add_command(label="Tutorial", command=menu_cmd, state=sel_state)
+        edit_menu.add_command(label="FAQ", command=menu_cmd, state=sel_state)
+        self.menu_bar.add_cascade(label="Help", menu=edit_menu)
+
+    def make_menu(self, cmd):
+        try:
+            read_data()
+        except FileNotFoundError:
+            self.edit_menu(cmd, "disabled")
+            self.view_menu(cmd, "disabled")
+            self.help_menu(cmd, "disabled")
+        else:
+            self.edit_menu(cmd, "normal")
+            self.view_menu(cmd, "normal")
+            self.help_menu(cmd, "normal")
 
