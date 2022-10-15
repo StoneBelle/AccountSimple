@@ -2,8 +2,8 @@ import json
 from tkinter import messagebox, END
 # GUI CONSTANTS
 BG_COL = "#FFFFFF"
-text_font = "Arial", 8, "normal"
-header_font = "Arial", 11, "bold"
+text_font = "Helvetica", 8, "normal"
+header_font = "Helvetica", 10, "bold"
 
 
 # TODO #3: Create JS
@@ -40,9 +40,9 @@ def check_exception(name, name2, new_data, data):
 def update_label(entry_input, label):
     """Updates the Label widget."""
     if len(entry_input) == 0:
-        label.config(foreground="red")
+        label.config(foreground="#e62315")
     else:
-        label.config(foreground="black")
+        label.config(foreground="#787878")
 
 
 

@@ -36,7 +36,11 @@ class AppFrame(ttk.Frame):
         style = ttk.Style()
         style.configure("TFrame", background=BG_COL)
         style.configure("TButton", background=BG_COL)
-        style.configure("TLabel", background=BG_COL, foreground="grey", font=text_font)
+        style.configure("TLabel", background=BG_COL, foreground="#787878", font=text_font)
+        style.configure("Header.TLabel", background=BG_COL, foreground="#000000", font=header_font)
+
+
+
         # print(style.lookup("TFrame", "background"))  # Checks current style applied. Takes 2 parameters: name & widget
         # print(style.theme_names())  # Shows different styles available in the OS.
         self.make_widgets(self)
@@ -51,7 +55,7 @@ class AppFrame(ttk.Frame):
         global user_label
         global pass_label
 
-        prompt_label = ttk.Label(wn, text="Save or find your Account login using the fields below.")
+        prompt_label = ttk.Label(wn, style="Header.TLabel", text="Save or find your Account login below.")
         acc_label = ttk.Label(wn, text="ACCOUNT")
         user_label = ttk.Label(wn, text="USERNAME")
         pass_label = ttk.Label(wn, text="PASSWORD")
@@ -62,7 +66,7 @@ class AppFrame(ttk.Frame):
 
         find_button = ttk.Button(wn, text="Find Login", width=17, command=self.find_login)
         pass_button = ttk.Button(wn, text="Generate Password", width=17, command=self.make_password)
-        add_button = ttk.Button(wn, text="Save Account Login", width=53, command=self.save_login)
+        add_button = ttk.Button(wn, text="Save", width=12, command=self.save_login)
 
         # Widget grid
         prompt_label.grid(column=3, columnspan=2, row=1, pady=(15, 40))
@@ -70,13 +74,13 @@ class AppFrame(ttk.Frame):
         user_label.grid(column=3, row=4,  padx=(0, 160), pady=(30, 7))
         pass_label.grid(column=3, row=6, padx=(0, 160), pady=(30, 7))
 
-        acc_entry.grid(column=3, row=3, ipady=3)
-        user_entry.grid(column=3, columnspan=2, row=5, ipady=3, padx=(0, 7))
-        pass_entry.grid(column=3, row=7, ipady=3)
+        acc_entry.grid(column=3, row=3, ipady=2)
+        user_entry.grid(column=3, columnspan=2, row=5, ipady=2, padx=(0, 7))
+        pass_entry.grid(column=3, row=7, ipady=2)
 
-        find_button.grid(column=4, row=3, ipady=2, padx=8)
-        pass_button.grid(column=4, row=7, ipady=2, padx=8)
-        add_button.grid(column=3, columnspan=2, row=8, pady=43, ipadx=9, ipady=2, padx=(0, 7))
+        find_button.grid(column=4, row=3, padx=8)
+        pass_button.grid(column=4, row=7, padx=8)
+        add_button.grid(column=4, row=8, padx=(22, 0), pady=30)
 
     def find_login(self):
         """Retrieves user input from the account entry box and checks for a login saved under that name. User will be
@@ -184,7 +188,7 @@ class AppFrame(ttk.Frame):
             global left_btn
             global right_btn
 
-            header = ttk.Label(outer_frame, text=f"Select {text}")
+            header = ttk.Label(outer_frame, style="Header.TLabel", text=f"Select {text}")
             left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=top.destroy)
             right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton")
 
@@ -224,15 +228,26 @@ class AppFrame(ttk.Frame):
             tk.Radiobutton(canvas_frame, text=option, value=val, variable=var, bg=BG_COL, activebackground=BG_COL,
                            font=("Arial", 8, "normal"), pady=6).grid(padx=(30, 0), sticky="w")
 
+
+
+        global selected
+        selected = var.get()
+        # if selected in accounts:
+        #     right_btn.after(1000, change_btn)
+
+
+        # TODO: If a radiobutton is NOT checked change the state=DISABLE
         right_btn.config(state=DISABLED)
 
-        while True:
-            top.update()  # Refreshes screen
-            global selected
-            selected = var.get()
-            if selected in accounts:
-                right_btn.config(state=NORMAL, command=self.clicked_next)
-                break
+        # TODO: If a radiobutton IS checked change the state=NORMAL
+        right_btn.config(state=NORMAL, command=self.clicked_next)
+
+        # TODO: Update the screen to reflect any changes in button states. (after, update, config, while loop)
+
+
+
+
+
 
 
 
@@ -268,8 +283,7 @@ class AppFrame(ttk.Frame):
         user_label.grid(column=0, row=0, padx=(0,50), pady=(20, 0))
         pass_label.grid(column=0, row=0, pady=(170, 0))
 
-        user_entry.grid(column=0, row=0, pady=(70, 0), ipady=
-        2)
+        user_entry.grid(column=0, row=0, pady=(70, 0), ipady=2)
         pass_entry.grid(column=0, row=0, pady=(220, 0), ipady=2)
         # TODO: Find login data for selected account
         # TODO: Display login data within en
