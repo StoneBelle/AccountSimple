@@ -15,10 +15,8 @@ symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 MENU_ITEMS = ("Update Login", "Delete Login", "Portrait View", "Landscape View", "View All", "Tutorial", "FAQ")
 DISABLE_STATE = ("Update Login", "Delete Login", "View All")
 
-
 class AppWindow(tk.Tk):
     """Class that inherits tk.Tk to create a window object."""
-
     def __init__(self, title):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
@@ -32,7 +30,6 @@ class AppWindow(tk.Tk):
 
 class AppFrame(ttk.Frame):
     """Class that inherits ttk.Frame to create a Frame object inside a window."""
-
     def __init__(self, root):
         super().__init__(root)
         # ttk Widget Styles
@@ -48,7 +45,7 @@ class AppFrame(ttk.Frame):
         self.grid()
 
     def make_widgets(self, wn):
-        # ttk Widgets
+        # global scope for selected widgets which will be used in other methods
         global acc_entry
         global user_entry
         global pass_entry
@@ -56,6 +53,7 @@ class AppFrame(ttk.Frame):
         global user_label
         global pass_label
 
+        # ttk Widgets
         prompt_label = ttk.Label(wn, style="Header.TLabel", text="Save or find your Account login below.")
         acc_label = ttk.Label(wn, text="ACCOUNT")
         user_label = ttk.Label(wn, text="USERNAME")
@@ -84,9 +82,10 @@ class AppFrame(ttk.Frame):
         add_button.grid(column=4, row=8, padx=(22, 0), pady=30)
 
     def find_login(self):
-        """Retrieves user input from the account entry box and checks for a login saved under that name. User will be
+        """Retrieves user input from the account entrybox and checks for a login saved under that name. User will be
         notified via a messagebox on whether a login exists."""
-        account = acc_entry.get()
+
+        account = acc_entry.get().strip()
         try:  # Checking for saved data
             data = read_data()
         except FileNotFoundError:  # If no existing data inform user
@@ -95,9 +94,9 @@ class AppFrame(ttk.Frame):
             if account in data.keys():
                 saved_user = data[account]["username"]
                 saved_pass = data[account]["password"]
-                messagebox.showinfo(title="Account Login Retrieved", message=f'"{account}" Account Login Found:        '
-                                                                             f'\n\nUsername:  {saved_user}'
-                                                                             f'\nPassword:  {saved_pass}')
+                messagebox.showinfo(title="Account Login Retrieved",
+                                    message=f'"{account}" Account Login Found:\n\nUsername:  {saved_user}'
+                                    f'\nPassword:  {saved_pass}')
             else:
                 if len(account) == 0:
                     messagebox.showerror(title="Missing Required Field", message="Enter the account name to continue.")
@@ -162,14 +161,15 @@ class AppFrame(ttk.Frame):
         else:
             # Retrieves Account names from saved data and stores it in an alphabetically sorted list called "accounts"
             global accounts
-            accounts = sorted(tuple(data.keys()))
+            accounts = sorted(data.keys())
+            print(type(accounts))
 
             # Creates a Toplevel with customizable title & size
             global top
             top = tk.Toplevel(bg=BG_COL)
             top.title(title)
             top.resizable(True, True)
-            top.geometry("700x365")
+            top.geometry("700x395")
 
             # Ensures Toplevel is responsive as window is resized
             top.grid_columnconfigure(0, weight=1)
@@ -228,14 +228,13 @@ class AppFrame(ttk.Frame):
             header.config(foreground="#000000", font=header_font)
 
         else:
-            header.config(foreground="#e62315", font=missing_font)
+            header.config(text="You must select an account to proceed.", foreground="#e62315", font=header_font)
 
     def update_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
         self.make_pop_up("Update Login")
         self.make_scrollbar("the login you would like to update:", self.sel_radio_btn)
         self.make_radio_buttons()
-
 
 
     def make_radio_buttons(self):
@@ -261,9 +260,9 @@ class AppFrame(ttk.Frame):
         header.config(text=f"{selected} Login Information")
 
 
-        header.grid(column=0, row=0, pady=(0, 275))
         # left_btn.config(text="Back", command=self.clear_pop_up)
-        right_btn.config(text="Update",  command=self.save_changes) # TODO: Create a command to check for changes. If changes made, save updated info
+        right_btn.config(text="Update",  command=self.save_changes)
+        # TODO: Create a command to check for changes. If changes made, save updated info
 
         global user_entry
         global pass_entry
@@ -283,35 +282,70 @@ class AppFrame(ttk.Frame):
 
         # TODO: Add appropriate widgets to screen
         # left_btn.grid(column=0, row=1, padx=(90, 0), pady=(10, 0))
-
-        right_btn.grid(column=0, row=1, padx=(255, 0), pady=(5, 0))
+        header.grid(column=0, row=0, pady=(20, 275))
+        right_btn.grid(column=0, row=0, padx=(255, 0), pady=(330, 0))
         acc_label.grid(column=0, row=0, padx=(0, 280), pady=(0, 170))
         user_label.grid(column=0, row=0, padx=(0, 277), pady=(0, 15))
         pass_label.grid(column=0, row=0, padx=(0, 275), pady=(155, 0))
         acc_entry.grid(column=0, row=0, pady=(0, 120))
         user_entry.grid(column=0, row=0, pady=(45, 0), ipady=2)
-        pass_entry.grid(column=0, row=0, pady=(215., 0), ipady=2)
-
+        pass_entry.grid(column=0, row=0, pady=(215, 0), ipady=2)
 
 
     def save_changes(self):
         # TODO: Get info from entrybox and check if info is the same as what is already saved
-        new_acc = acc_entry.get()
+        accinfo = acc_entry.get().strip()
         userinfo = user_entry.get().replace(" ", "")
         passinfo = pass_entry.get().replace(" ", "")
 
-        login_data = {new_acc: {
-            "username": userinfo,
-            "password": passinfo}
+        # DEBUG: You can delete this code if want Gemm
+        temp = accinfo
+        print("temp = {}".format(temp))
+        # End of DEBUG
+
+        changed_data = {
+            accinfo: {
+                "username": userinfo,
+                "password": passinfo
+            }
         }
 
+        # DEBUG: You can delete this code if want Gemm
         data = read_data()
-        update_data(data, login_data)
+        print("data: {}".format(data))
+
+        changed_data[temp]["username"] = userinfo
+        changed_data[temp]["password"] = passinfo
+
+        # print("changed_data type: {}\n".format(type(changed_data)))
+        # print("acc_info type: {}\n".format(type(accinfo)))
+        print("changed_data: {}".format(changed_data))
+
+        print("accinfo = {}".format(accinfo))
+        print("userinfo = {}".format(changed_data[accinfo]["username"]))
+        print("passinfo = {}\n".format(changed_data[accinfo]["password"]))
+
+        # End of DEBUG
+
+
+        with open('data.json', 'w') as data_file:
+            json.dump(changed_data, data_file, indent=4)
+
+
+
+
+        # TODO: get the current account login info
+
+        # TODO: check if user made changes to current login info in entry boxes shown
+
+        # TODO: if changes made, add new entry into json file
+
+        # TODO: Delete old login using pop method (i.e. selected var)
+
 
         header.config(text="Login Saved")
-
-        print(userinfo)
-        print(passinfo)
+        # print(userinfo)
+        # print(passinfo)
 
         # TODO: If info is the same inform & prompt user to make changes
         # TODO: If info is the diff inform & show user the following changes will be saved
