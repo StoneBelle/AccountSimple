@@ -3,6 +3,8 @@ from modify_data import *
 import tkinter as tk
 from tkinter import ttk
 from tkinter import *
+from tkinter.ttk import *
+
 
 # Password Components
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -21,7 +23,7 @@ class AppWindow(tk.Tk):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
         self.title(title)
-        self.geometry("850x500")
+        self.geometry("850x430")
 
         # Window Responsiveness
         self.rowconfigure(0, weight=1)
@@ -30,6 +32,7 @@ class AppWindow(tk.Tk):
 
 class AppFrame(ttk.Frame):
     """Class that inherits ttk.Frame to create a Frame object inside a window."""
+
     def __init__(self, root):
         super().__init__(root)
         # ttk Widget Styles
@@ -38,8 +41,6 @@ class AppFrame(ttk.Frame):
         style.configure("TButton", background=BG_COL)
         style.configure("TLabel", background=BG_COL, foreground="#787878", font=text_font)
         style.configure("Header.TLabel", background=BG_COL, foreground="#000000", font=header_font)
-
-
 
         # print(style.lookup("TFrame", "background"))  # Checks current style applied. Takes 2 parameters: name & widget
         # print(style.theme_names())  # Shows different styles available in the OS.
@@ -71,7 +72,7 @@ class AppFrame(ttk.Frame):
         # Widget grid
         prompt_label.grid(column=3, columnspan=2, row=1, pady=(15, 40))
         acc_label.grid(column=3, row=2, padx=(0, 165), pady=5)
-        user_label.grid(column=3, row=4,  padx=(0, 160), pady=(30, 7))
+        user_label.grid(column=3, row=4, padx=(0, 160), pady=(30, 7))
         pass_label.grid(column=3, row=6, padx=(0, 160), pady=(30, 7))
 
         acc_entry.grid(column=3, row=3, ipady=2)
@@ -151,7 +152,7 @@ class AppFrame(ttk.Frame):
         pass_entry.insert(0, generated_pass)
         print(pass_requirements)
 
-    def make_pop_up(self, title, text):
+    def make_pop_up(self, title):
         """Creates a customizable Toplevel if there is existing data is found. Returns the canvas frame to be used as
         the root for new widgets."""
         try:
@@ -159,7 +160,6 @@ class AppFrame(ttk.Frame):
         except FileNotFoundError:
             messagebox.showerror(title="No Accounts Saved", message="There are currently no Account logins saved.")
         else:
-
             # Retrieves Account names from saved data and stores it in an alphabetically sorted list called "accounts"
             global accounts
             accounts = sorted(tuple(data.keys()))
@@ -177,6 +177,7 @@ class AppFrame(ttk.Frame):
             top.grid_columnconfigure(5, weight=1)
             top.grid_rowconfigure(5, weight=1)
 
+    def make_scrollbar(self, text, cmd):
             # Toplevel Frames
             global outer_frame
             global inner_frame
@@ -190,7 +191,7 @@ class AppFrame(ttk.Frame):
 
             header = ttk.Label(outer_frame, style="Header.TLabel", text=f"Select {text}")
             left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=top.destroy)
-            right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton")
+            right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton", command=cmd)
 
             # Canvas & Scrollbar
             canvas = tk.Canvas(inner_frame, bg="#a2f2d5", width=500)
@@ -201,6 +202,7 @@ class AppFrame(ttk.Frame):
             canvas.configure(yscrollcommand=scrollbar.set)
             canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
+
             # Create Canvas frame
             global canvas_frame
             canvas_frame = ttk.Frame(canvas)
@@ -209,90 +211,118 @@ class AppFrame(ttk.Frame):
             outer_frame.grid(column=1, row=2)
             inner_frame.grid(row=2)
             header.grid(column=0, row=1, pady=15)
-            left_btn.grid(column=0, row=6, padx=(140, 0), pady=10)
-            right_btn.grid(column=0, row=6, padx=(305, 0))
+            left_btn.grid(column=0, row=6, padx=(280, 0), pady=10)
+            right_btn.grid(column=0, row=6, padx=(445, 0))
 
             canvas.grid()
             canvas_frame.grid()
             canvas.create_window((0, 0), window=canvas_frame, anchor=NW)
             scrollbar.grid(row=0, column=2, sticky=NS)
 
+    def sel_radio_btn(self):
+        global selected
+        selected = var.get()
+        """Takes user to next screen if a radiobutton was selected. Else a user prompt will be shown. """
+        if selected in accounts:
+            self.clicked_next()
+            header.config(foreground="#000000", font=header_font)
+
+        else:
+            header.config(foreground="#e62315", font=missing_font)
+
     def update_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
-        self.make_pop_up("Update Login", "the login you would like to update:")
+        self.make_pop_up("Update Login")
+        self.make_scrollbar("the login you would like to update:", self.sel_radio_btn)
+        self.make_radio_buttons()
+
+
+
+    def make_radio_buttons(self):
         radio_inputs = [(acc, acc) for acc in accounts]
 
         global var
         var = StringVar(value=0)
         for option, val in radio_inputs:
-            tk.Radiobutton(canvas_frame, text=option, value=val, variable=var, bg=BG_COL, activebackground=BG_COL,
-                           font=("Arial", 8, "normal"), pady=6).grid(padx=(30, 0), sticky="w")
-
-
-
-        global selected
-        selected = var.get()
-        # if selected in accounts:
-        #     right_btn.after(1000, change_btn)
-
-
-        # TODO: If a radiobutton is NOT checked change the state=DISABLE
-        right_btn.config(state=DISABLED)
-
-        # TODO: If a radiobutton IS checked change the state=NORMAL
-        right_btn.config(state=NORMAL, command=self.clicked_next)
-
-        # TODO: Update the screen to reflect any changes in button states. (after, update, config, while loop)
-
-
-
-
-
-
+            ttk.Radiobutton(canvas_frame, text=option, value=val, variable=var).grid(padx=(30, 0), sticky="w")
 
 
     def clicked_next(self):
-        # After user selects an account to edit, Toplevel will refresh to prompt user to make their desired changes.
+        # After user selects an account to update, Toplevel will refresh to prompt user to make their desired changes.
         scrollbar.destroy()
         for widget in inner_frame.winfo_children():
             widget.destroy()
 
-        #self.make_widgets(outer_frame)
         data = read_data()
-
+        # TODO: Find login data for selected account
         if selected in data.keys():
             saved_user = data[selected]["username"]
             saved_pass = data[selected]["password"]
         header.config(text=f"{selected} Login Information")
 
-        header.grid(column=0, row=0, pady=(0, 50))
-        left_btn.config(text="Back")
-        right_btn.config(text="Update")
-        left_btn.grid(column=0, row=1, pady=(10, 0))
-        right_btn.grid(column=0, row=1, pady=(10, 0))
 
-        user_entry = ttk.Entry(outer_frame, width=40)
-        pass_entry = ttk.Entry(outer_frame, width=40)
+        header.grid(column=0, row=0, pady=(0, 275))
+        # left_btn.config(text="Back", command=self.clear_pop_up)
+        right_btn.config(text="Update",  command=self.save_changes) # TODO: Create a command to check for changes. If changes made, save updated info
 
+        global user_entry
+        global pass_entry
+        acc_entry = ttk.Entry(outer_frame, width=55)
+        user_entry = ttk.Entry(outer_frame, width=55)
+        pass_entry = ttk.Entry(outer_frame, width=55)
+        acc_label = ttk.Label(outer_frame, text="ACCOUNT")
         user_label = ttk.Label(outer_frame, text="USERNAME")
         pass_label = ttk.Label(outer_frame, text="PASSWORD")
 
+        # TODO: Display login data within entrybox
+
+        acc_entry.insert(0, f"{selected}")
         user_entry.insert(0, f"{saved_user}")
-        pass_entry.insert(0,f"{saved_pass}")
+        pass_entry.insert(0, f"{saved_pass}")
+        acc_entry.focus_set()  # Automatically sets cursor on desired entry box so user does not need to click a box
 
-        user_label.grid(column=0, row=0, padx=(0,50), pady=(20, 0))
-        pass_label.grid(column=0, row=0, pady=(170, 0))
-
-        user_entry.grid(column=0, row=0, pady=(70, 0), ipady=2)
-        pass_entry.grid(column=0, row=0, pady=(220, 0), ipady=2)
-        # TODO: Find login data for selected account
-        # TODO: Display login data within en
-        #
-        #
-        #  try boxes
         # TODO: Add appropriate widgets to screen
-        # TODO: Change "cancel" button to "back" button & call previous screen
+        # left_btn.grid(column=0, row=1, padx=(90, 0), pady=(10, 0))
 
+        right_btn.grid(column=0, row=1, padx=(255, 0), pady=(5, 0))
+        acc_label.grid(column=0, row=0, padx=(0, 280), pady=(0, 170))
+        user_label.grid(column=0, row=0, padx=(0, 277), pady=(0, 15))
+        pass_label.grid(column=0, row=0, padx=(0, 275), pady=(155, 0))
+        acc_entry.grid(column=0, row=0, pady=(0, 120))
+        user_entry.grid(column=0, row=0, pady=(45, 0), ipady=2)
+        pass_entry.grid(column=0, row=0, pady=(215., 0), ipady=2)
+
+
+
+    def save_changes(self):
+        # TODO: Get info from entrybox and check if info is the same as what is already saved
+        new_acc = acc_entry.get()
+        userinfo = user_entry.get().replace(" ", "")
+        passinfo = pass_entry.get().replace(" ", "")
+
+        login_data = {new_acc: {
+            "username": userinfo,
+            "password": passinfo}
+        }
+
+        data = read_data()
+        update_data(data, login_data)
+
+        header.config(text="Login Saved")
+
+        print(userinfo)
+        print(passinfo)
+
+        # TODO: If info is the same inform & prompt user to make changes
+        # TODO: If info is the diff inform & show user the following changes will be saved
+
+        # TODO: Change "cancel" button to "back" button & call previous screen
+    def clear_pop_up(self):
+        for widget in inner_frame.winfo_children():
+            widget.destroy()
+
+        self.make_scrollbar("the login you would like to update:")
+        self.make_radio_buttons()
 
     # TODO #2: Create Menu Bar for home screen
     def view_all(self):
@@ -318,17 +348,12 @@ class MenuBar:
 
     def view_menu(self, menu_cmd, sel_state):
         view_menu = Menu(self.menu_bar, tearoff="off")
-        view_menu.add_command(label="Landscape", command=menu_cmd, state=sel_state)
-        view_menu.add_command(label="Portrait", command=menu_cmd, state=sel_state)
-        view_menu.add_separator()
+        # view_menu.add_command(label="Small", command=menu_cmd, state=sel_state)
+        # view_menu.add_command(label="Medium", command=menu_cmd, state=sel_state)
+        # view_menu.add_separator()
         view_menu.add_command(label="View All", command=menu_cmd, state=sel_state)
         self.menu_bar.add_cascade(label="View", menu=view_menu)
 
-    def help_menu(self, menu_cmd, sel_state):
-        edit_menu = Menu(self.menu_bar, tearoff="off")
-        # edit_menu.add_command(label="Tutorial", command=menu_cmd, state=sel_state)
-        edit_menu.add_command(label="FAQ", command=menu_cmd, state=sel_state)
-        self.menu_bar.add_cascade(label="Help", menu=edit_menu)
 
     def make_menu(self, cmd):
         try:
@@ -336,9 +361,6 @@ class MenuBar:
         except FileNotFoundError:
             self.edit_menu(cmd, "disabled")
             self.view_menu(cmd, "disabled")
-            self.help_menu(cmd, "disabled")
         else:
             self.edit_menu(cmd, "normal")
             self.view_menu(cmd, "normal")
-            self.help_menu(cmd, "normal")
-

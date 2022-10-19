@@ -3,6 +3,8 @@ from tkinter import messagebox, END
 # GUI CONSTANTS
 BG_COL = "#FFFFFF"
 text_font = "Helvetica", 8, "normal"
+missing_font = "Helvetica", 8, "bold"
+
 header_font = "Helvetica", 10, "bold"
 
 
@@ -40,20 +42,11 @@ def check_exception(name, name2, new_data, data):
 def update_label(entry_input, label):
     """Updates the Label widget."""
     if len(entry_input) == 0:
-        label.config(foreground="#e62315")
+        label.config(foreground="#e62315", font=missing_font)
     else:
-        label.config(foreground="#787878")
+        label.config(foreground="#787878", font=text_font)
 
 
-
-
-def update_state():
-    try:
-        read_data()
-    except FileNotFoundError:
-        print("keep state as is")
-    else:
-        pass
 
 
 
