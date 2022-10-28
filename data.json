@@ -1,6 +1,38 @@
 {
-    "": {
-        "username": "999j9j9j",
-        "password": "909"
+    "SnakePrincess": {
+        "username": "BoaHancock",
+        "password": "LoveLoveFruit"
+    },
+    "PirateKing": {
+        "username": "MonkeyDLuffy",
+        "password": "GumGumFruit"
+    },
+    "SurgeonofDeath": {
+        "username": "TrafalgarDWaterLaw",
+        "password": "OpeOpeFruit"
+    },
+    "FireFist": {
+        "username": "PortgasDAce",
+        "password": "FlameFlameFruit"
+    },
+    "GreatestSwordsman": {
+        "username": "RoronoaZoro",
+        "password": "3SwordStyle"
+    },
+    "Navigator": {
+        "username": "NamiSwan",
+        "password": "Tangerines"
+    },
+    "Archeologist": {
+        "username": "NicoRobin",
+        "password": "FlowerFlowerFruit"
+    },
+    "SniperKing": {
+        "username": "Usopp",
+        "password": "LongNose"
+    },
+    "Cyborg": {
+        "username": "Frankie",
+        "password": "CuttyFlam"
     }
 }
