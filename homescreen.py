@@ -5,7 +5,6 @@ from tkinter import ttk
 from tkinter import *
 from tkinter.ttk import *
 
-
 # Password Components
 letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
@@ -15,8 +14,10 @@ symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 MENU_ITEMS = ("Update Login", "Delete Login", "Portrait View", "Landscape View", "View All", "Tutorial", "FAQ")
 DISABLE_STATE = ("Update Login", "Delete Login", "View All")
 
+
 class AppWindow(tk.Tk):
     """Class that inherits tk.Tk to create a window object."""
+
     def __init__(self, title):
         super().__init__()
         self.config(bg=BG_COL, padx=100, pady=30)
@@ -30,14 +31,17 @@ class AppWindow(tk.Tk):
 
 class AppFrame(ttk.Frame):
     """Class that inherits ttk.Frame to create a Frame object inside a window."""
+
     def __init__(self, root):
         super().__init__(root)
         # ttk Widget Styles
         style = ttk.Style()
         style.configure("TFrame", background=BG_COL)
         style.configure("TButton", background=BG_COL)
+        style.configure("TRadiobutton", background=BG_COL)
         style.configure("TLabel", background=BG_COL, foreground="#787878", font=text_font)
         style.configure("Header.TLabel", background=BG_COL, foreground="#000000", font=header_font)
+
 
         # print(style.lookup("TFrame", "background"))  # Checks current style applied. Takes 2 parameters: name & widget
         # print(style.theme_names())  # Shows different styles available in the OS.
@@ -96,7 +100,7 @@ class AppFrame(ttk.Frame):
                 saved_pass = data[account]["password"]
                 messagebox.showinfo(title="Account Login Retrieved",
                                     message=f'"{account}" Account Login Found:\n\nUsername:  {saved_user}'
-                                    f'\nPassword:  {saved_pass}')
+                                            f'\nPassword:  {saved_pass}')
             else:
                 if len(account) == 0:
                     messagebox.showerror(title="Missing Required Field", message="Enter the account name to continue.")
@@ -178,46 +182,54 @@ class AppFrame(ttk.Frame):
             top.grid_rowconfigure(5, weight=1)
 
     def make_scrollbar(self, text, cmd):
-            # Toplevel Frames
-            global outer_frame
-            global inner_frame
-            outer_frame = ttk.Frame(top)
-            inner_frame = ttk.Frame(outer_frame)
+        # Toplevel Frames
+        global outer_frame
+        global inner_frame
+        outer_frame = ttk.Frame(top)
+        inner_frame = ttk.Frame(outer_frame)
 
-            # Toplevel Widgets
-            global header
-            global left_btn
-            global right_btn
+        # Toplevel Widgets
+        global header
+        global left_btn
+        global right_btn
 
-            header = ttk.Label(outer_frame, style="Header.TLabel", text=f"Select {text}")
-            left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=top.destroy)
-            right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton", command=cmd)
+        header = ttk.Label(outer_frame, style="Header.TLabel", text=f"Select {text}")
+        left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=top.destroy)
+        right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton", command=cmd)
 
-            # Canvas & Scrollbar
-            canvas = tk.Canvas(inner_frame, bg="#a2f2d5", width=500)
-            global scrollbar
-            scrollbar = ttk.Scrollbar(inner_frame, orient="vertical", command=canvas.yview)
+        # Canvas & Scrollbar
+        canvas = tk.Canvas(inner_frame, bg="#a2f2d5", width=500)
+        global scrollbar
+        scrollbar = ttk.Scrollbar(inner_frame, orient="vertical", command=canvas.yview)
 
-            # Configure Canvas
-            canvas.configure(yscrollcommand=scrollbar.set)
-            canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        # Configure Canvas
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
+        # Create Canvas frame
+        global canvas_frame
+        canvas_frame = ttk.Frame(canvas)
 
-            # Create Canvas frame
-            global canvas_frame
-            canvas_frame = ttk.Frame(canvas)
+        # Toplevel Grid System
+        outer_frame.grid(column=1, row=2)
+        inner_frame.grid(row=2)
+        header.grid(column=0, row=1, pady=15)
+        left_btn.grid(column=0, row=6, padx=(280, 0), pady=10)
+        right_btn.grid(column=0, row=6, padx=(445, 0))
 
-            # Toplevel Grid System
-            outer_frame.grid(column=1, row=2)
-            inner_frame.grid(row=2)
-            header.grid(column=0, row=1, pady=15)
-            left_btn.grid(column=0, row=6, padx=(280, 0), pady=10)
-            right_btn.grid(column=0, row=6, padx=(445, 0))
+        canvas.grid()
+        canvas_frame.grid()
+        canvas.create_window((0, 0), window=canvas_frame, anchor=NW)
+        scrollbar.grid(row=0, column=2, sticky=NS)
 
-            canvas.grid()
-            canvas_frame.grid()
-            canvas.create_window((0, 0), window=canvas_frame, anchor=NW)
-            scrollbar.grid(row=0, column=2, sticky=NS)
+    def make_radio_buttons(self):
+        radio_inputs = [(acc, acc) for acc in accounts]
+
+        global var
+        var = StringVar(value=0)
+        for option, val in radio_inputs:
+            acc_option = ttk.Radiobutton(canvas_frame, text=option, value=val, variable=var)
+            acc_option.grid(padx=(50, 0), pady=8, sticky="w")
 
     def sel_radio_btn(self):
         global selected
@@ -236,16 +248,6 @@ class AppFrame(ttk.Frame):
         self.make_scrollbar("the login you would like to update:", self.sel_radio_btn)
         self.make_radio_buttons()
 
-
-    def make_radio_buttons(self):
-        radio_inputs = [(acc, acc) for acc in accounts]
-
-        global var
-        var = StringVar(value=0)
-        for option, val in radio_inputs:
-            ttk.Radiobutton(canvas_frame, text=option, value=val, variable=var).grid(padx=(30, 0), sticky="w")
-
-
     def clicked_next(self):
         # After user selects an account to update, Toplevel will refresh to prompt user to make their desired changes.
         scrollbar.destroy()
@@ -259,9 +261,8 @@ class AppFrame(ttk.Frame):
             saved_pass = data[selected]["password"]
         header.config(text=f"{selected} Login Information")
 
-
         # left_btn.config(text="Back", command=self.clear_pop_up)
-        right_btn.config(text="Update",  command=self.save_changes)
+        right_btn.config(text="Update", command=self.save_changes)
         # TODO: Create a command to check for changes. If changes made, save updated info
 
         global user_entry
@@ -274,7 +275,6 @@ class AppFrame(ttk.Frame):
         pass_label = ttk.Label(outer_frame, text="PASSWORD")
 
         # TODO: Display login data within entrybox
-
         acc_entry.insert(0, f"{selected}")
         user_entry.insert(0, f"{saved_user}")
         pass_entry.insert(0, f"{saved_pass}")
@@ -291,17 +291,11 @@ class AppFrame(ttk.Frame):
         user_entry.grid(column=0, row=0, pady=(45, 0), ipady=2)
         pass_entry.grid(column=0, row=0, pady=(215, 0), ipady=2)
 
-
     def save_changes(self):
         # TODO: Get info from entrybox and check if info is the same as what is already saved
         accinfo = acc_entry.get().strip()
         userinfo = user_entry.get().replace(" ", "")
         passinfo = pass_entry.get().replace(" ", "")
-
-        # DEBUG: You can delete this code if want Gemm
-        temp = accinfo
-        print("temp = {}".format(temp))
-        # End of DEBUG
 
         changed_data = {
             accinfo: {
@@ -310,29 +304,8 @@ class AppFrame(ttk.Frame):
             }
         }
 
-        # DEBUG: You can delete this code if want Gemm
-        data = read_data()
-        print("data: {}".format(data))
-
-        changed_data[temp]["username"] = userinfo
-        changed_data[temp]["password"] = passinfo
-
-        # print("changed_data type: {}\n".format(type(changed_data)))
-        # print("acc_info type: {}\n".format(type(accinfo)))
-        print("changed_data: {}".format(changed_data))
-
-        print("accinfo = {}".format(accinfo))
-        print("userinfo = {}".format(changed_data[accinfo]["username"]))
-        print("passinfo = {}\n".format(changed_data[accinfo]["password"]))
-
-        # End of DEBUG
-
-
         with open('data.json', 'w') as data_file:
             json.dump(changed_data, data_file, indent=4)
-
-
-
 
         # TODO: get the current account login info
 
@@ -342,15 +315,16 @@ class AppFrame(ttk.Frame):
 
         # TODO: Delete old login using pop method (i.e. selected var)
 
-
         header.config(text="Login Saved")
         # print(userinfo)
         # print(passinfo)
 
         # TODO: If info is the same inform & prompt user to make changes
+
         # TODO: If info is the diff inform & show user the following changes will be saved
 
         # TODO: Change "cancel" button to "back" button & call previous screen
+
     def clear_pop_up(self):
         for widget in inner_frame.winfo_children():
             widget.destroy()
@@ -387,7 +361,6 @@ class MenuBar:
         # view_menu.add_separator()
         view_menu.add_command(label="View All", command=menu_cmd, state=sel_state)
         self.menu_bar.add_cascade(label="View", menu=view_menu)
-
 
     def make_menu(self, cmd):
         try:
