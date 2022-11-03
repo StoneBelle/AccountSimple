@@ -1,0 +1,32 @@
+Account Simple GUI 
+
+- Local account manager to store and oraganize the logins for multiple accounts
+
+
+KEY FUNCTIONS:
+
+# Save login info
+# Find login info
+# Update login info
+# Delete login info
+
+USER TASKS
+# 
+
+
+ERRORS
+
+# Menu bar states do not update depending on whether there is existing data
+# i.e. no saved data state = disabled, upon saving data state is still disabled
+# only when window is closed does the json file get created and state = normal
+
+
+# After updating a login & closing toplevel user is returned to homescreen
+# however user is unable to save, find, or generate password 
+
+
+
+
+# When a ttk.Radiobutton is selected a grey outline is shown around the Canvas
+# SOLVED:change highlightthickness=0, or highlighcolor="" 
+# https://www.educba.com/tkinter-frame/

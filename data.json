@@ -3,17 +3,9 @@
         "username": "NamiSwan",
         "password": "CatBurglar"
     },
-    "Doctor": {
-        "username": "TonyTonyChopper",
-        "password": "HumanHumanFruit"
-    },
     "SurgeonofDeath": {
         "username": "TrafalgarLaw",
         "password": "OpeOpeFruit"
-    },
-    "Archeologist": {
-        "username": "NicoRobin",
-        "password": "FlowerFlowerFruit"
     },
     "ShipWright": {
         "username": "FrankieGusto",
@@ -23,8 +15,16 @@
         "username": "RoronoaZoro",
         "password": "3SwordStyle"
     },
+    "ShipDoctor": {
+        "username": "Chopper",
+        "password": "HumanHumanFruit"
+    },
     "SnakePrincess": {
         "username": "BoaHancock",
         "password": "LoveLoveFruit"
+    },
+    "Archeologist": {
+        "username": "NicoRobin",
+        "password": "FlowerFlowerFruit"
     }
 }

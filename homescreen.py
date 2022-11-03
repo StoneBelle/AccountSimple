@@ -11,9 +11,6 @@ letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 
-MENU_ITEMS = ("Update Login", "Delete Login", "Portrait View", "Landscape View", "View All", "Tutorial", "FAQ")
-DISABLE_STATE = ("Update Login", "Delete Login", "View All")
-
 
 class AppWindow(tk.Tk):
     """Class that inherits tk.Tk to create a window object."""
@@ -295,33 +292,39 @@ class AppFrame(ttk.Frame):
         self.make_widgets(self)
 
     def save_changes(self):
-        # TODO: Get info from entrybox and check if info is the same as what is already saved
+        # TODO: Retrieve username & password for selected account
+        data = read_data()
+        old_user = data[selected]["username"]
+        old_pass = data[selected]["password"]
+
         accinfo = acc_entry.get().strip()
         userinfo = user_entry.get().replace(" ", "")
         passinfo = pass_entry.get().replace(" ", "")
 
-        changed_data = {
-            accinfo: {
-                "username": userinfo,
-                "password": passinfo
-            }
-        }
         # TODO: If info is the same inform & prompt user to make changes
-
-        data = read_data()
-        print(data) # python dict before pop method
+        if accinfo == selected and userinfo == old_user and passinfo == old_pass:
+            print("same")
         # TODO: if changes made, add new entry into json file and delete old login using pop method
-        data.pop(selected)
-        update_data(data, changed_data)
-        print(data) # python dict after pop method
-        print(accinfo)
+        else:
+            changed_data = {
+                accinfo: {
+                    "username": userinfo,
+                    "password": passinfo
+                }
+            }
+            print(f"user selected: {selected}")
+            print(f"old_user: {old_user}")
+            print(f"old_pass: {old_pass}")
 
+            print(data)  # python dict before pop method
+            data.pop(selected)
+            update_data(data, changed_data)
+            print(data)  # python dict after pop method
+            print(accinfo)
 
-        # TODO: Change "cancel" button to "back" button & call previous screen
-        header.config(text="Success! The following changes have been saved.")
-        right_btn.config(text="Exit", command=top.destroy)
-
-
+            # TODO: Change "cancel" button to "back" button & call previous screen
+            header.config(text="Success! The following changes have been saved.")
+            right_btn.config(text="Exit", command=top.destroy)
 
     def clear_pop_up(self):
         for widget in inner_frame.winfo_children():
