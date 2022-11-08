@@ -219,7 +219,7 @@ class AppFrame(ttk.Frame):
         scrollbar.grid(row=0, column=2, sticky=NS)
 
     def make_radio_buttons(self):
-        radio_inputs = [(acc, acc) for acc in accounts]
+        radio_inputs = [(acc, acc) for acc in accounts]   
 
         global var
         var = StringVar(value=0)
@@ -301,10 +301,10 @@ class AppFrame(ttk.Frame):
         userinfo = user_entry.get().replace(" ", "")
         passinfo = pass_entry.get().replace(" ", "")
 
-        # TODO: If info is the same inform & prompt user to make changes
+        # TODO: If entry boxes remain the same inform & prompt user to make changes
         if accinfo == selected and userinfo == old_user and passinfo == old_pass:
-            print("same")
-        # TODO: if changes made, add new entry into json file and delete old login using pop method
+            header.config(text="To update your login you must make changes.", foreground="red")
+        # TODO: If   changes made, add new entry into json file and delete old login using pop method
         else:
             changed_data = {
                 accinfo: {
@@ -334,25 +334,35 @@ class AppFrame(ttk.Frame):
         self.make_radio_buttons()
 
     # TODO #2: Create Menu Bar for home screen
-    def view_all(self):
-        print("All Saved Logins")
 
     def delete_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select an account(s) to delete."""
         # top_wn = make_pop_up("Delete Login", "the login(s) you would like to delete")
-        pass
+        def btn_pressed():
+            messagebox.askyesno(title="Confirm delete")
+            print("next has been pressed")
+        # TODO: Create a scrollable Toplevel
+        self.make_pop_up("Delete Login")
+        self.make_scrollbar("the logins you would like to delete:", btn_pressed)
+
+        # TODO: Create a Checkbutton for each saved account saved in the global accounts list
+
+        print("this is delete login")
+
+    def view_all(self):
+        print("this is view all logins")
 
 
 class MenuBar:
-    def __init__(self, root, frame):
+    def __init__(self, root, cmd1, cmd2, cmd3):
         self.menu_bar = Menu(root)
-        self.make_menu(frame)
+        self.make_menu(cmd1, cmd2, cmd3)
         root.config(menu=self.menu_bar)
 
-    def edit_menu(self, menu_cmd, sel_state):
+    def edit_menu(self, cmd1, cmd2, sel_state):
         edit_menu = Menu(self.menu_bar, tearoff="off")
-        edit_menu.add_command(label="Update Login", command=menu_cmd, state=sel_state)
-        edit_menu.add_command(label="Delete Login", command=menu_cmd, state=sel_state)
+        edit_menu.add_command(label="Update Login", command=cmd1, state=sel_state)
+        edit_menu.add_command(label="Delete Login", command=cmd2, state=sel_state)
         self.menu_bar.add_cascade(label="Edit", menu=edit_menu)
 
     def view_menu(self, menu_cmd, sel_state):
@@ -363,12 +373,12 @@ class MenuBar:
         view_menu.add_command(label="View All", command=menu_cmd, state=sel_state)
         self.menu_bar.add_cascade(label="View", menu=view_menu)
 
-    def make_menu(self, cmd):
+    def make_menu(self, cmd1, cmd2, cmd3):
         try:
             read_data()
         except FileNotFoundError:
-            self.edit_menu(cmd, "disabled")
-            self.view_menu(cmd, "disabled")
+            self.edit_menu(cmd1, cmd2, "disabled")
+            self.view_menu(cmd3, "disabled")
         else:
-            self.edit_menu(cmd, "normal")
-            self.view_menu(cmd, "normal")
+            self.edit_menu(cmd1, cmd2, "normal")
+            self.view_menu(cmd3, "normal")
