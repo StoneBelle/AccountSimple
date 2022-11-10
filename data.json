@@ -1,8 +1,4 @@
 {
-    "Navigator": {
-        "username": "NamiSwan",
-        "password": "CatBurglar"
-    },
     "SurgeonofDeath": {
         "username": "TrafalgarLaw",
         "password": "OpeOpeFruit"
@@ -10,10 +6,6 @@
     "ShipWright": {
         "username": "FrankieGusto",
         "password": "CuttyFlam"
-    },
-    "GreatestSwordsman": {
-        "username": "RoronoaZoro",
-        "password": "3SwordStyle"
     },
     "ShipDoctor": {
         "username": "Chopper",
@@ -26,5 +18,13 @@
     "Archeologist": {
         "username": "NicoRobin",
         "password": "FlowerFlowerFruit"
+    },
+    "GreatestSwordsman": {
+        "username": "RoronoaZoro",
+        "password": "3SwordStyle"
+    },
+    "Navigator": {
+        "username": "NamiSwan",
+        "password": "CatBurglar"
     }
 }
