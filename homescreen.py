@@ -165,23 +165,23 @@ class AppFrame(ttk.Frame):
             print(type(accounts))
 
             # Creates a Toplevel with customizable title & size
-            global top
-            top = tk.Toplevel(bg=BG_COL)
-            top.title(title)
-            top.resizable(True, True)
-            top.geometry("700x395")
+            global pop_up
+            pop_up = tk.Toplevel(bg=BG_COL)
+            pop_up.title(title)
+            pop_up.resizable(True, True)
+            pop_up.geometry("700x395")
 
             # Ensures Toplevel is responsive as window is resized
-            top.grid_columnconfigure(0, weight=1)
-            top.grid_rowconfigure(0, weight=1)
-            top.grid_columnconfigure(5, weight=1)
-            top.grid_rowconfigure(5, weight=1)
+            pop_up.grid_columnconfigure(0, weight=1)
+            pop_up.grid_rowconfigure(0, weight=1)
+            pop_up.grid_columnconfigure(5, weight=1)
+            pop_up.grid_rowconfigure(5, weight=1)
 
     def make_scrollbar(self, text, cmd):
         # Toplevel Frames
         global outer_frame
         global inner_frame
-        outer_frame = ttk.Frame(top)
+        outer_frame = ttk.Frame(pop_up)
         inner_frame = ttk.Frame(outer_frame)
 
         # Toplevel Widgets
@@ -190,7 +190,7 @@ class AppFrame(ttk.Frame):
         global right_btn
 
         header = ttk.Label(outer_frame, style="Header.TLabel", text=f"Select {text}")
-        left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=top.destroy)
+        left_btn = ttk.Button(outer_frame, text="Cancel", style="Left.TButton", command=pop_up.destroy)
         right_btn = ttk.Button(outer_frame, text="Next", style="Right.TButton", command=cmd)
 
         # Canvas & Scrollbar
@@ -207,6 +207,7 @@ class AppFrame(ttk.Frame):
         canvas_frame = ttk.Frame(canvas)
 
         # Toplevel Grid System
+
         outer_frame.grid(column=1, row=2)
         inner_frame.grid(row=2)
         header.grid(column=0, row=1, pady=15)
@@ -218,8 +219,14 @@ class AppFrame(ttk.Frame):
         canvas.create_window((0, 0), window=canvas_frame, anchor=NW)
         scrollbar.grid(row=0, column=2, sticky=NS)
 
+    def update_login(self):
+        """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
+        self.make_pop_up("Update Login")
+        self.make_scrollbar("the login you would like to update:", self.sel_radio_btn)
+        self.make_radio_buttons()
+
     def make_radio_buttons(self):
-        radio_inputs = [(acc, acc) for acc in accounts]   
+        radio_inputs = [(acc, acc) for acc in accounts]
 
         global var
         var = StringVar(value=0)
@@ -234,15 +241,8 @@ class AppFrame(ttk.Frame):
         if selected in accounts:
             self.clicked_next()
             header.config(foreground="#000000", font=header_font)
-
         else:
             header.config(text="You must select an account to proceed.", foreground="#e62315", font=header_font)
-
-    def update_login(self):
-        """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
-        self.make_pop_up("Update Login")
-        self.make_scrollbar("the login you would like to update:", self.sel_radio_btn)
-        self.make_radio_buttons()
 
     def clicked_next(self):
         # After user selects an account to update, Toplevel will refresh to prompt user to make their desired changes.
@@ -286,10 +286,6 @@ class AppFrame(ttk.Frame):
         user_entry.grid(column=0, row=0, pady=(45, 0), ipady=2)
         pass_entry.grid(column=0, row=0, pady=(215, 0), ipady=2)
 
-    def refresh_wn(self):
-        top.destroy()
-        self.destroy()
-        self.make_widgets(self)
 
     def save_changes(self):
         # TODO: Retrieve username & password for selected account
@@ -304,7 +300,7 @@ class AppFrame(ttk.Frame):
         # TODO: If entry boxes remain the same inform & prompt user to make changes
         if accinfo == selected and userinfo == old_user and passinfo == old_pass:
             header.config(text="To update your login you must make changes.", foreground="red")
-        # TODO: If   changes made, add new entry into json file and delete old login using pop method
+        # TODO: If changes made, add new entry into json file and delete old login using pop method
         else:
             changed_data = {
                 accinfo: {
@@ -323,36 +319,35 @@ class AppFrame(ttk.Frame):
             print(accinfo)
 
             # TODO: Change "cancel" button to "back" button & call previous screen
-            header.config(text="Success! The following changes have been saved.")
-            right_btn.config(text="Exit", command=top.destroy)
+            header.config(text="Success! The following changes have been saved.", foreground="black")
+            right_btn.config(text="Exit", command=pop_up.destroy)
 
-    def clear_pop_up(self):
-        for widget in inner_frame.winfo_children():
-            widget.destroy()
 
-        self.make_scrollbar("the login you would like to update:")
-        self.make_radio_buttons()
 
-    # TODO #2: Create Menu Bar for home screen
 
     def delete_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select an account(s) to delete."""
-        # top_wn = make_pop_up("Delete Login", "the login(s) you would like to delete")
+
         def btn_pressed():
-            messagebox.askyesno(title="Confirm delete")
+            # messagebox.showwarning(title="Confirm delete", message="There are currently no Account logins saved.")
             print("next has been pressed")
         # TODO: Create a scrollable Toplevel
         self.make_pop_up("Delete Login")
         self.make_scrollbar("the logins you would like to delete:", btn_pressed)
 
         # TODO: Create a Checkbutton for each saved account saved in the global accounts list
-
+        global chk_var
+        chk_var = IntVar()
+        for acc in accounts:
+            acc_options = ttk.Checkbutton(canvas_frame, text=acc, variable=chk_var)
+            acc_options.grid(padx=(55, 0), pady=12, sticky="w")
         print("this is delete login")
 
     def view_all(self):
         print("this is view all logins")
 
 
+# TODO #2: Create Menu Bar for home screen
 class MenuBar:
     def __init__(self, root, cmd1, cmd2, cmd3):
         self.menu_bar = Menu(root)
