@@ -36,6 +36,7 @@ class AppFrame(ttk.Frame):
         style.configure("TFrame", background=BG_COL)
         style.configure("TButton", background=BG_COL)
         style.configure("TRadiobutton", background=BG_COL)
+        style.configure("TCheckbutton", background=BG_COL)
         style.configure("TLabel", background=BG_COL, foreground="#787878", font=text_font)
         style.configure("Header.TLabel", background=BG_COL, foreground="#000000", font=header_font)
 
@@ -223,15 +224,15 @@ class AppFrame(ttk.Frame):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select a single account to update."""
         self.make_pop_up("Update Login")
         self.make_scrollbar("the login you would like to update:", self.sel_radio_btn)
-        self.make_radio_buttons()
+        self.make_radio_btn()
 
-    def make_radio_buttons(self):
+    def make_radio_btn(self):
         radio_inputs = [(acc, acc) for acc in accounts]
 
         global var
-        var = StringVar(value=0)
+        var = StringVar()
         for option, val in radio_inputs:
-            acc_option = ttk.Radiobutton(canvas_frame, text=option, value=val, variable=var)
+            acc_option = ttk.Radiobutton(canvas_frame, text=option, value=val, variable=var, takefocus=False)
             acc_option.grid(padx=(55, 0), pady=12, sticky="w")
 
     def sel_radio_btn(self):
@@ -286,7 +287,6 @@ class AppFrame(ttk.Frame):
         user_entry.grid(column=0, row=0, pady=(45, 0), ipady=2)
         pass_entry.grid(column=0, row=0, pady=(215, 0), ipady=2)
 
-
     def save_changes(self):
         # TODO: Retrieve username & password for selected account
         data = read_data()
@@ -322,26 +322,39 @@ class AppFrame(ttk.Frame):
             header.config(text="Success! The following changes have been saved.", foreground="black")
             right_btn.config(text="Exit", command=pop_up.destroy)
 
-
-
-
     def delete_login(self):
         """Displays all saved Accounts in a scrollable Toplevel. Allows users to select an account(s) to delete."""
 
         def btn_pressed():
-            # messagebox.showwarning(title="Confirm delete", message="There are currently no Account logins saved.")
+
             print("next has been pressed")
+
         # TODO: Create a scrollable Toplevel
         self.make_pop_up("Delete Login")
         self.make_scrollbar("the logins you would like to delete:", btn_pressed)
-
+        self.make_check_btn()
+    def make_check_btn(self):
         # TODO: Create a Checkbutton for each saved account saved in the global accounts list
+        # chk_state = 0
+        # # new_dict = {new_key: new_value for item in list}
+        # chk_btn_dict = {account: chk_state for account in accounts}
+        # print(chk_btn_dict)
+
         global chk_var
-        chk_var = IntVar()
         for acc in accounts:
-            acc_options = ttk.Checkbutton(canvas_frame, text=acc, variable=chk_var)
+            chk_var = IntVar()
+
+
+            acc_options = ttk.Checkbutton(canvas_frame, text=acc, variable=chk_var, takefocus=False, state=True)
+
             acc_options.grid(padx=(55, 0), pady=12, sticky="w")
+
         print("this is delete login")
+
+    def sel_check_btn(self):
+        global selected_chk_btns
+        selected_chk_btns= chk_var.get()
+        print(selected_chk_btns)
 
     def view_all(self):
         print("this is view all logins")
@@ -362,9 +375,6 @@ class MenuBar:
 
     def view_menu(self, menu_cmd, sel_state):
         view_menu = Menu(self.menu_bar, tearoff="off")
-        # view_menu.add_command(label="Small", command=menu_cmd, state=sel_state)
-        # view_menu.add_command(label="Medium", command=menu_cmd, state=sel_state)
-        # view_menu.add_separator()
         view_menu.add_command(label="View All", command=menu_cmd, state=sel_state)
         self.menu_bar.add_cascade(label="View", menu=view_menu)
 
