@@ -343,10 +343,7 @@ class AppFrame(ttk.Frame):
         global chk_var
         for acc in accounts:
             chk_var = IntVar()
-
-
             acc_options = ttk.Checkbutton(canvas_frame, text=acc, variable=chk_var, takefocus=False, state=True)
-
             acc_options.grid(padx=(55, 0), pady=12, sticky="w")
 
         print("this is delete login")
@@ -354,7 +351,11 @@ class AppFrame(ttk.Frame):
     def sel_check_btn(self):
         global selected_chk_btns
         selected_chk_btns= chk_var.get()
+
         print(selected_chk_btns)
+
+
+
 
     def view_all(self):
         print("this is view all logins")
